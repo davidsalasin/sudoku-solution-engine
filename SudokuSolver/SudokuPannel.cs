@@ -2,11 +2,14 @@ using System.Diagnostics;
 
 namespace SudokuSolver;
 
-// Static Class DLX: Allows easy inputing of Sudoku puzzle strings of the user to SudokuPuzzle class (and solving them)
+/// <summary>
+/// Static class that allows easy inputting of Sudoku puzzle strings from the user to SudokuPuzzle class (and solving them).
+/// </summary>
 public static class SudokuPannel
 {
-    // Static method: LaunchInstructions (Private).
-    // RETURNS: void ** Prints user instructions **.
+    /// <summary>
+    /// Prints user instructions.
+    /// </summary>
     private static void LaunchInstructions()
     {
         // User instructions:
@@ -27,9 +30,10 @@ public static class SudokuPannel
         Console.WriteLine("#----------------------------------------------------------------------------------------------------------------------#");
     }
 
-    // Static method: LaunchInput.
-    // RETURNS: void ** Asks user for format input and relocates his request to TextFormatEntry/FileFormatEntry 
-    //          -> later asking the user if he would like to enter another board format **.
+    /// <summary>
+    /// Asks user for format input and redirects the request to TextFormatEntry/FileFormatEntry,
+    /// then asks the user if they would like to enter another board format.
+    /// </summary>
     public static void LaunchInput()
     {
         // While user wants to enter another board format flag.
@@ -38,8 +42,7 @@ public static class SudokuPannel
         // Prints user instructions.
         LaunchInstructions();
 
-        // Resizing the buffersize of Console for larger inputs.
-        // ** For future long puzzle string inputs **.
+        // Resizing the buffer size of Console for larger inputs (for future long puzzle string inputs).
         int bufSize = 4096;
         Stream inStream = Console.OpenStandardInput(bufSize);
         Console.SetIn(new StreamReader(inStream, Console.InputEncoding, false, bufSize));
@@ -89,12 +92,15 @@ public static class SudokuPannel
         Console.WriteLine("\n> Exited\n");
     }
 
-    // Delegate method: FormatEntry.
-    // SIGNATURES: RETURN -> BOOL / ENTRY (no params).
+    /// <summary>
+    /// Delegate for format entry methods that return a boolean indicating success.
+    /// </summary>
     public delegate bool FormatEntry();
 
-    // Static method: FileFormatEntry.
-    // RETURNS: true if the method call was successful (didn't crash), else false.
+    /// <summary>
+    /// Handles file format entry for Sudoku puzzles.
+    /// </summary>
+    /// <returns>True if the method call was successful (didn't crash), otherwise false.</returns>
     public static bool FileFormatEntry()
     {
         // Asks user for the Sudoku puzzle file path.
@@ -102,11 +108,9 @@ public static class SudokuPannel
         string path = Console.ReadLine();
 
         // Next method calls may throw these exceptions:
-        // (1) FileNotFoundException.
-        // (2) Exception - "Couldn't create SudokuPuzzle Class: (Puzzle string's lenght)^0.25 
-        //                  isn't a natural number: *(Puzzle string's lenght)^0.25*".
-        // (3) Exception - "Couldn't create SudokuPuzzle Class: Puzzle string contains invalid
-        //                  charactrs for the Lenght of the Soduko puzzle string: *char* (as (int)*char*)".
+        // (1) FileNotFoundException
+        // (2) Exception - "Couldn't create SudokuPuzzle Class: (Puzzle string's length)^0.25 isn't a natural number: *(Puzzle string's length)^0.25*"
+        // (3) Exception - "Couldn't create SudokuPuzzle Class: Puzzle string contains invalid characters for the Length of the Sudoku puzzle string: *char* (as (int)*char*)"
         try
         {
             // Opens path file on read to get user's puzzle string.
@@ -132,8 +136,10 @@ public static class SudokuPannel
         return true;
     }
 
-    // Static method: TextFormatEntry.
-    // RETURNS: true if the method call was successful (didn't crash), else false.
+    /// <summary>
+    /// Handles text format entry for Sudoku puzzles.
+    /// </summary>
+    /// <returns>True if the method call was successful (didn't crash), otherwise false.</returns>
     public static bool TextFormatEntry()
     {
         // Asks user for the Sudoku puzzle string.
@@ -141,10 +147,8 @@ public static class SudokuPannel
         string puzzleString = Console.ReadLine();
 
         // Next method calls may throw these exceptions:
-        // (1) Exception - "Couldn't create SudokuPuzzle Class: (Puzzle string's lenght)^0.25 
-        //                  isn't a natural number: *(Puzzle string's lenght)^0.25*".
-        // (2) Exception - "Couldn't create SudokuPuzzle Class: Puzzle string contains invalid
-        //                  charactrs for the Lenght of the Soduku puzzle string: *char* (as (int)*char*)".
+        // (1) Exception - "Couldn't create SudokuPuzzle Class: (Puzzle string's length)^0.25 isn't a natural number: *(Puzzle string's length)^0.25*"
+        // (2) Exception - "Couldn't create SudokuPuzzle Class: Puzzle string contains invalid characters for the Length of the Sudoku puzzle string: *char* (as (int)*char*)"
         try
         {
             // Create SudokuPuzzle instance from user's puzzle string input.
@@ -166,10 +170,12 @@ public static class SudokuPannel
         return true;
     }
 
-    // Static method: SolvePuzzle (Private) -> Calls the other SolvePuzzle static method.
-    // RECEIVES: SudokuPuzzle sp (SudokuPuzzle class reference, with included puzzle details).
-    // RETURNS: returns path string of file solution ** Gets called upon to redirect console's output to
-    //          solution's file path (writes solution to solution file) **.
+    /// <summary>
+    /// Solves the puzzle and writes the solution to a file. Redirects console output to the solution file path.
+    /// </summary>
+    /// <param name="sp">SudokuPuzzle class reference with included puzzle details.</param>
+    /// <param name="path">Path to the original puzzle file.</param>
+    /// <returns>Path string of the solution file.</returns>
     private static string SolvePuzzle(SudokuPuzzle sp, string path)
     {
         // Creates new path to solution file of the original file -> new .txt file with an addition
@@ -194,9 +200,10 @@ public static class SudokuPannel
         return path;
     }
 
-    // Static method: SolvePuzzle (Private).
-    // RECEIVES: SudokuPuzzle sp (SudokuPuzzle class reference, with included puzzle details).
-    // RETURNS: void ** print SudokuPuzzle's info, and the changed info if it has been solved **.
+    /// <summary>
+    /// Solves the puzzle and prints SudokuPuzzle's info, and the changed info if it has been solved.
+    /// </summary>
+    /// <param name="sp">SudokuPuzzle class reference with included puzzle details.</param>
     private static void SolvePuzzle(SudokuPuzzle sp)
     {
         // Print sudoku puzzle string.

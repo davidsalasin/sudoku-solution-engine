@@ -21,7 +21,7 @@ namespace SudokuSolver.UnitTests
             bool solved = sp.Solve();
 
             // Assert:
-            // **True expected**.
+            // True expected.
             Assert.IsTrue(solved);
         }
 
@@ -38,7 +38,7 @@ namespace SudokuSolver.UnitTests
             bool solved = sp.Solve();
 
             // Assert:
-            // **True expected**.
+            // True expected.
             Assert.IsTrue(solved);
         }
 
@@ -58,7 +58,7 @@ namespace SudokuSolver.UnitTests
             bool solved = sp.Solve();
 
             // Assert:
-            // **True expected**.
+            // True expected.
             Assert.IsTrue(solved);
         }
 
@@ -75,14 +75,14 @@ namespace SudokuSolver.UnitTests
             // Act:
             try
             {
-                // ** Expected to throw exception - 5 not a valid char for the specific Sudoku puzzle**
+                // Expected to throw exception - 5 not a valid char for the specific Sudoku puzzle.
                 var sp = new SudokuPuzzle(puzzleString);
                 Assert.Fail();
             }
             catch
             {
                 // Assert:
-                // **True expected**.
+                // True expected.
                 Assert.IsTrue(true);
             }
         }
@@ -99,14 +99,14 @@ namespace SudokuSolver.UnitTests
             // Act:
             try
             {
-                // ** Expected to throw exception - not a valid lenght for a Sudoku puzzle**
+                // Expected to throw exception - not a valid length for a Sudoku puzzle.
                 var sp = new SudokuPuzzle(puzzleString);
                 Assert.Fail();
             }
             catch
             {
                 // Assert:
-                // **True expected**.
+                // True expected.
                 Assert.IsTrue(true);
             }
         }
@@ -127,7 +127,7 @@ namespace SudokuSolver.UnitTests
             bool solved = sp.Solve();
 
             // Assert:
-            // **True expected**.
+            // True expected.
             Assert.IsTrue(solved);
         }
 
@@ -152,7 +152,7 @@ namespace SudokuSolver.UnitTests
             bool solved = sp.Solve();
 
             // Assert:
-            // **True expected**.
+            // True expected.
             Assert.IsTrue(solved);
         }
 
@@ -177,7 +177,7 @@ namespace SudokuSolver.UnitTests
             bool solved = sp.Solve();
 
             // Assert:
-            // **True expected**.
+            // True expected.
             Assert.IsTrue(solved);
         }
 
@@ -202,7 +202,7 @@ namespace SudokuSolver.UnitTests
             bool solved = sp.Solve();
 
             // Assert:
-            // **True expected**.
+            // True expected.
             Assert.IsTrue(solved);
         }
 
@@ -227,7 +227,7 @@ namespace SudokuSolver.UnitTests
             bool solved = sp.Solve();
 
             // Assert:
-            // **True expected**.
+            // True expected.
             Assert.IsTrue(solved);
         }
 
@@ -252,7 +252,7 @@ namespace SudokuSolver.UnitTests
             bool solved = sp.Solve();
 
             // Assert:
-            // **False expected**.
+            // False expected.
             Assert.IsFalse(solved);
         }
 
@@ -277,7 +277,7 @@ namespace SudokuSolver.UnitTests
             bool solved = sp.Solve();
 
             // Assert:
-            // **False expected**.
+            // False expected.
             Assert.IsFalse(solved);
         }
 
@@ -302,7 +302,7 @@ namespace SudokuSolver.UnitTests
             bool solved = sp.Solve();
 
             // Assert:
-            // **True expected**.
+            // True expected.
             Assert.IsTrue(solved);
         }
 
@@ -324,14 +324,14 @@ namespace SudokuSolver.UnitTests
             // Act:
             try
             {
-                // ** Expected to throw exception - ? not a valid char for the specific Sudoku puzzle**
+                // Expected to throw exception - ? not a valid char for the specific Sudoku puzzle.
                 var sp = new SudokuPuzzle(puzzleString);
                 Assert.Fail();
             }
             catch
             {
                 // Assert:
-                // **True expected**.
+                // True expected.
                 Assert.IsTrue(true);
             }
         }
@@ -355,14 +355,14 @@ namespace SudokuSolver.UnitTests
             // Act:
             try
             {
-                // ** Expected to throw exception - not a valid lenght for a Sudoku puzzle**
+                // Expected to throw exception - not a valid length for a Sudoku puzzle.
                 var sp = new SudokuPuzzle(puzzleString);
                 Assert.Fail();
             }
             catch
             {
                 // Assert:
-                // **True expected**.
+                // True expected.
                 Assert.IsTrue(true);
             }
         }
@@ -395,7 +395,7 @@ namespace SudokuSolver.UnitTests
             bool solved = sp.Solve();
 
             // Assert:
-            // **True expected**.
+            // True expected.
             Assert.IsTrue(solved);
         }
 
@@ -427,7 +427,7 @@ namespace SudokuSolver.UnitTests
             bool solved = sp.Solve();
 
             // Assert:
-            // **True expected**.
+            // True expected.
             Assert.IsTrue(solved);
         }
 
@@ -459,7 +459,7 @@ namespace SudokuSolver.UnitTests
             bool solved = sp.Solve();
 
             // Assert:
-            // **False expected**.
+            // False expected.
             Assert.IsFalse(solved);
         }
 
@@ -500,7 +500,7 @@ namespace SudokuSolver.UnitTests
             bool solved = sp.Solve();
 
             // Assert:
-            // **True expected**.
+            // True expected.
             Assert.IsTrue(solved);
         }
 
@@ -552,7 +552,7 @@ namespace SudokuSolver.UnitTests
             bool solved = sp.Solve();
 
             // Assert:
-            // **True expected**.
+            // True expected.
             Assert.IsTrue(solved);
         }
     }

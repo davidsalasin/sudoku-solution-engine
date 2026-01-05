@@ -1,34 +1,44 @@
 namespace SudokuSolver;
 
 
-//Class SudokuPuzzle: class made for a specific Sudoku puzzle
+/// <summary>
+/// Class made for a specific Sudoku puzzle.
+/// </summary>
 public class SudokuPuzzle
 {
-    // Property: string SudokuSTR.
-    // Puzzle string of the Sudoku puzzle.
+    /// <summary>
+    /// Puzzle string of the Sudoku puzzle.
+    /// </summary>
     public string SudokuSTR { get; set; }
-    // Property: int[,] SudokuMatrix.
-    // Board matrix of the Sudoku puzzle.
+
+    /// <summary>
+    /// Board matrix of the Sudoku puzzle.
+    /// </summary>
     public int[,] SudokuMatrix { get; set; }
-    // Property: int Side.
-    // Side lenght of the puzzle matrix.
+
+    /// <summary>
+    /// Side length of the puzzle matrix.
+    /// </summary>
     public int Side { get; set; }
-    // Property: int RootSquareSide.
-    // Root square of the side lenght of the puzzle Matrix -> The side lenght of the inner squares of the puzzle.
+
+    /// <summary>
+    /// Root square of the side length of the puzzle Matrix. The side length of the inner squares of the puzzle.
+    /// </summary>
     public int RootSquareSide { get; set; }
 
-    // Class Constructor.
-    // RECEIVES: string puzzleString.
-    // CONSTRUCTS -> SudokuPuzzle with received puzzleString, Board Matrix according to puzzle's values, Side lenght
-    //               of the board's values and Inner Side lenght of the inner boards of the Sudoku puzzle.
+    /// <summary>
+    /// Constructs a SudokuPuzzle with the received puzzleString, Board Matrix according to puzzle's values,
+    /// Side length of the board's values and Inner Side length of the inner boards of the Sudoku puzzle.
+    /// </summary>
+    /// <param name="puzzleString">The puzzle string representation of the Sudoku puzzle.</param>
     public SudokuPuzzle(string puzzleString)
     {
-        // The next call of the pow method allows the constuctor to check if the lenght of the received puzzle string 
-        // is valid to create a board of sudoku, by checking if its lenght powered 0.25 is a natural number.
+        // The next call of the pow method allows the constructor to check if the length of the received puzzle string
+        // is valid to create a board of sudoku, by checking if its length powered 0.25 is a natural number.
         double powDot25 = Math.Pow(puzzleString.Length, 0.25);
 
-        // if powDot25 a natural number -> stop constructing the class by generating a custom texted exception.
-        // The texted exception -> notifies user about inputed puzzle string not being fitting sudoku's standarts.
+        // If powDot25 is not a natural number, stop constructing the class by generating a custom exception.
+        // The exception notifies user about inputted puzzle string not being fitting sudoku's standards.
         if (powDot25 != (int)powDot25)
         {
             throw new Exception($"Couldn't create SudokuPuzzle Class: (Puzzle string's lenght)^0.25 isn't a natural number: {powDot25}");
@@ -48,8 +58,8 @@ public class SudokuPuzzle
                 // value of puzzle string's current index
                 var indexValue = (int)puzzleString[i * Side + j] - '0';
 
-                // if indexValue isn't in range of the accepts value for the specific puzzle -> stop constructing the class by generating a custom texted exception.
-                // The texted exception -> notifies user about inputed puzzle string containing unfitting char values for the specific puzzle.
+                // If indexValue isn't in range of the accepted value for the specific puzzle, stop constructing the class by generating a custom exception.
+                // The exception notifies user about inputted puzzle string containing unfitting char values for the specific puzzle.
                 if (indexValue < 0 || indexValue > Side)
                 {
                     throw new Exception("Couldn't create SudokuPuzzle Class: Puzzle string contains invalid charactrs for the Lenght of the Soduko puzzle string: "
@@ -62,8 +72,9 @@ public class SudokuPuzzle
         }
     }
 
-    // Method: Print.
-    // RETURNS: void ** Prints board's matrix with special dynamic GUI according to its puzzle **.
+    /// <summary>
+    /// Prints board's matrix with special dynamic GUI according to its puzzle.
+    /// </summary>
     public void Print()
     {
         // digit amount of the maximum possible value of SudokuPuzzle.
@@ -227,12 +238,14 @@ public class SudokuPuzzle
         Console.WriteLine("___|\n");
     }
 
-    // Method: Solve.
-    // RETURNS: true if managed to solve the puzzle, else false.
+    /// <summary>
+    /// Solves the puzzle using the DLX algorithm.
+    /// </summary>
+    /// <returns>True if managed to solve the puzzle, otherwise false.</returns>
     public bool Solve()
     {
         // Calls algorithm DLX (Solve as a static class method) to solve the given SudokuPuzzle(self).
-        // ** Updates Board accordingly inside of the static method, if solved **.
+        // Updates Board accordingly inside of the static method, if solved.
         return DLX.Solve(this); ;
     }
 }

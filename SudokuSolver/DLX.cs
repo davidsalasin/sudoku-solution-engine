@@ -19,23 +19,27 @@ namespace SudokuSolver;
  * Dancing Links - https://en.wikipedia.org/wiki/Dancing_Links
  */
 
-// Static Class DLX: includes DLX, Soduko puzzle solving algorithm.
+/// <summary>
+/// Static class that includes DLX, Sudoku puzzle solving algorithm.
+/// </summary>
 static class DLX
 {
-    // Static method: FillDoubleLinkedListMatrix (Private).
-    // RECEIVES: SudokuPuzzle sp (SudokuPuzzle class reference, with included puzzle details).
-    // RETURNS: MatNode head, for a newly created sparse double linked matrix with included candidates
-    //          (as rows, based on already set positions from the received Sudoku puzzle), and constraints
-    //          (as cols, which present which 4 constraints each candidate presents).
+    /// <summary>
+    /// Creates a newly created sparse double linked matrix with included candidates
+    /// (as rows, based on already set positions from the received Sudoku puzzle), and constraints
+    /// (as cols, which present which 4 constraints each candidate presents).
+    /// </summary>
+    /// <param name="sp">SudokuPuzzle class reference with included puzzle details.</param>
+    /// <returns>MatNode head for the newly created sparse double linked matrix.</returns>
     private static MatNode FillDoubleLinkedListMatrix(SudokuPuzzle sp)
     {
         // Sudoku puzzle's matrix board.
         int[,] puzzelMatrix = sp.SudokuMatrix;
 
-        // Side lenght of the puzzle matrix.
+        // Side length of the puzzle matrix.
         int side = sp.Side;
 
-        // Root square of the side lenght of the puzzle Matrix -> The side lenght of the inner squares of the puzzle.
+        // Root square of the side length of the puzzle Matrix. The side length of the inner squares of the puzzle.
         int root = sp.RootSquareSide;
 
         // Used in Tag values for MatNodes constructed for the sparse matrix.
@@ -244,9 +248,11 @@ static class DLX
         return head;
     }
 
-    // Static method: GetMinCol (Private).
-    // RECEIVES: MatNode head (head for a sparse double linked matrix).
-    // RETURNS: Returns MatNode of a column head with the least amount of MatNodes in its column.
+    /// <summary>
+    /// Returns MatNode of a column head with the least amount of MatNodes in its column.
+    /// </summary>
+    /// <param name="head">Head for a sparse double linked matrix.</param>
+    /// <returns>MatNode of a column head with the least amount of MatNodes in its column.</returns>
     private static MatNode GetMinCol(MatNode head)
     {
         // Get The first Node to the right of the head of the sparse matrix.
@@ -266,9 +272,10 @@ static class DLX
         return min;
     }
 
-    // Static method: Cover (Private).
-    // RECEIVES: MatNode node.
-    // RETURNS: void ** unlinks node's column, and each row in the column from the sparse matrix its in **.
+    /// <summary>
+    /// Unlinks node's column, and each row in the column from the sparse matrix it's in.
+    /// </summary>
+    /// <param name="node">The MatNode to cover.</param>
     private static void Cover(MatNode node)
     {
         // Get the pointer to the header of column to which this node belong.
@@ -292,39 +299,41 @@ static class DLX
         }
     }
 
-        // Static method: Uncover (Private).
-        // RECEIVES: MatNode node.
-        // RETURNS: void ** links node's column, and each row in the column from the sparse matrix its in **.
-        private static void Uncover(MatNode node)
+    /// <summary>
+    /// Links node's column, and each row in the column from the sparse matrix it's in.
+    /// </summary>
+    /// <param name="node">The MatNode to uncover.</param>
+    private static void Uncover(MatNode node)
+    {
+        // Get the pointer to the header of column to which this node belong.
+        MatNode top = node.TopNode;
+
+        // Move down the column and link back each row by traversing left.
+        for (var row = top.UpNode; row != top; row = row.UpNode)
         {
-            // Get the pointer to the header of column to which this node belong.
-            MatNode top = node.TopNode;
-
-            // Move down the column and link back each row by traversing left.
-            for (var row = top.UpNode; row != top; row = row.UpNode)
+            for (var ptr = row.LeftNode; ptr != row; ptr = ptr.LeftNode)
             {
-                for (var ptr = row.LeftNode; ptr != row; ptr = ptr.LeftNode)
-                {
-                    ptr.UpNode.DownNode = ptr;
-                    ptr.DownNode.UpNode = ptr;
+                ptr.UpNode.DownNode = ptr;
+                ptr.DownNode.UpNode = ptr;
 
-                    // After linking row node, increment the node count in column header.
-                    ptr.TopNode.ColumnLength++;
-                }
+                // After linking row node, increment the node count in column header.
+                ptr.TopNode.ColumnLength++;
             }
-
-            // Link the column header from it's neighbors.
-            top.RightNode.LeftNode = top;
-            top.LeftNode.RightNode = top;
         }
 
-    // Static method: Search (Private).
-    // RECEIVES: MatNode head (head for a sparse double linked matrix), Stack<string> solution (contains 
-    //           MatNode Tag strings as puzzle positions for solution).
-    // RETURNS: true if a solution has been found, else false ** Acts as a recursive method and calls
-    //          itself until sparse matrix has no columns left (not constraints it need to fill, true case)
-    //          or until the column with the minimum amount of MatNodes under it counts 0 (can't fill 
-    //          left constraints, false case).
+        // Link the column header from it's neighbors.
+        top.RightNode.LeftNode = top;
+        top.LeftNode.RightNode = top;
+    }
+
+    /// <summary>
+    /// Recursive method that searches for a solution. Calls itself until sparse matrix has no columns left
+    /// (not constraints it need to fill, true case) or until the column with the minimum amount of MatNodes
+    /// under it counts 0 (can't fill left constraints, false case).
+    /// </summary>
+    /// <param name="head">Head for a sparse double linked matrix.</param>
+    /// <param name="solution">Contains MatNode Tag strings as puzzle positions for solution.</param>
+    /// <returns>True if a solution has been found, otherwise false.</returns>
     private static bool Search(MatNode head, Stack<string> solution)
     {
         // True exit condition -> sparse matrix has no columns left (not constraints it need to fill).
@@ -389,9 +398,11 @@ static class DLX
         return false;
     }
 
-    // Static method: Search (Private) -> Calls the other Search static method.
-    // RECEIVES: MatNode head (head for a sparse double linked matrix).
-    // RETURNS: Stack<string> (which contains MatNode Tag strings as puzzle positions for solution).
+    /// <summary>
+    /// Calls the other Search static method with a new solution stack.
+    /// </summary>
+    /// <param name="head">Head for a sparse double linked matrix.</param>
+    /// <returns>Stack containing MatNode Tag strings as puzzle positions for solution.</returns>
     private static Stack<string> Search(MatNode head)
     {
         // Constructs new Stack<string> instance -> solutions.
@@ -405,11 +416,12 @@ static class DLX
         return solution;
     }
 
-    // Static method: UpdatePuzzle (Private).
-    // RECEIVES: SudokuPuzzle sp (SudokuPuzzle class reference, with included puzzle details), 
-    //           Stack<string> (which contains MatNode Tag strings as puzzle positions for solution).
-    // RETURNS: true if solution stack had tag position values, else false ** Updates SudokuPuzzle sp
-    //          to solution if a solution is found **.
+    /// <summary>
+    /// Updates SudokuPuzzle sp to solution if a solution is found.
+    /// </summary>
+    /// <param name="sp">SudokuPuzzle class reference with included puzzle details.</param>
+    /// <param name="solution">Stack containing MatNode Tag strings as puzzle positions for solution.</param>
+    /// <returns>True if solution stack had tag position values, otherwise false.</returns>
     private static bool UpdatePuzzle(SudokuPuzzle sp, Stack<string> solution)
     {
         // String positions -> sliced to find cell position and its value on Sudoku puzzle board.
@@ -464,9 +476,11 @@ static class DLX
         return true;
     }
 
-    // Static method: Solve.
-    // RECEIVES: SudokuPuzzle sp (SudokuPuzzle class reference, with included puzzle details).
-    // RETURNS: true if solution stack had tag position values, else false (from UpdatePuzzle call).
+    /// <summary>
+    /// Solves the Sudoku puzzle using the DLX algorithm.
+    /// </summary>
+    /// <param name="sp">SudokuPuzzle class reference with included puzzle details.</param>
+    /// <returns>True if solution stack had tag position values, otherwise false (from UpdatePuzzle call).</returns>
     public static bool Solve(SudokuPuzzle sp)
     {
         // Inits sparse double linked matrix to all availalbe candidates to complete the Sudoku puzzle.
