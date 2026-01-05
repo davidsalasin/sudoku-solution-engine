@@ -9,32 +9,32 @@ class MatNode
     /// Tags MatNode (self) with string for identification.
     /// </summary>
     public string Tag { get; set; }
-    
+
     /// <summary>
     /// Only applied and used by Top MatNode columns in sparse matrices to keep track of each column's MatNode count.
     /// </summary>
     public int ColumnLength { get; set; }
-    
+
     /// <summary>
     /// References Top MatNode of the column in the sparse matrix.
     /// </summary>
     public MatNode TopNode { get; set; }
-    
+
     /// <summary>
     /// References Above MatNode in the sparse matrix.
     /// </summary>
     public MatNode UpNode { get; set; }
-    
+
     /// <summary>
     /// References Below MatNode in the sparse matrix.
     /// </summary>
     public MatNode DownNode { get; set; }
-    
+
     /// <summary>
     /// References Right MatNode in the sparse matrix.
     /// </summary>
     public MatNode RightNode { get; set; }
-    
+
     /// <summary>
     /// References Left MatNode in the sparse matrix.
     /// </summary>
