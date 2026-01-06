@@ -1,9 +1,10 @@
-namespace SudokuSolver.CLI;
 
-class Program
-{
-    static void Main(string[] args)
-    {
-        SudokuPannel.LaunchInput();
-    }
-}
+using CommandLine;
+using SudokuSolver.CLI;
+
+Parser.Default.ParseArguments<Options>(args)
+    .WithParsed(options =>    
+    {        
+        var output = options.Capital ? options.Input.ToUpperInvariant() : options.Input;
+        Console.WriteLine(output);
+    });
