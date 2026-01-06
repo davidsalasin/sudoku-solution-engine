@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <RootNamespace>SudokuSolver.UnitTests</RootNamespace>
-    <AssemblyName>SudokuSolver.UnitTests</AssemblyName>
+    <RootNamespace>SudokuSolver.Core.Tests</RootNamespace>
+    <AssemblyName>SudokuSolver.Core.Tests</AssemblyName>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SudokuSolver\SudokuSolver.csproj" />
+    <ProjectReference Include="..\SudokuSolver.Core\SudokuSolver.Core.csproj" />
   </ItemGroup>
 
 </Project>

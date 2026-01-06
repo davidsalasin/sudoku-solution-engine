@@ -1,4 +1,4 @@
-namespace SudokuSolver;
+namespace SudokuSolver.Core;
 
 /// <summary>
 /// Class used to create a sparse double linked matrix for DLX (Algorithm X, dancing links) algorithm.

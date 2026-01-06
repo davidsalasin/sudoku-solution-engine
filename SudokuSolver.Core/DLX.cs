@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace SudokuSolver;
+namespace SudokuSolver.Core;
 
 /**
  * ! BEHIND DLX !
@@ -468,9 +468,6 @@ static class DLX
                 newSTR.Append((char)(sp.SudokuMatrix[i, j] + '0'));
             }
         }
-
-        // Set updated Sudoku puzzle string to the new found solved one.
-        sp.SudokuSTR = newSTR.ToString();
 
         // The Sudoku puzzle has been solved -> returns true.
         return true;

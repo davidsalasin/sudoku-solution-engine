@@ -1,8 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using SudokuSolver;
 
-namespace SudokuSolver.UnitTests
+namespace SudokuSolver.Core.Tests
 {
     // Unit Tests for custom unit scenarios
     [TestClass]

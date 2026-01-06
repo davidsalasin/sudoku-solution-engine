@@ -1,6 +1,7 @@
 using System.Diagnostics;
+using SudokuSolver.Core;
 
-namespace SudokuSolver;
+namespace SudokuSolver.CLI;
 
 /// <summary>
 /// Static class that allows easy inputting of Sudoku puzzle strings from the user to SudokuPuzzle class (and solving them).
@@ -52,10 +53,10 @@ public static class SudokuPannel
         {
             // Asks user for the Sudoku puzzle format.
             Console.Write("\n> Enter a puzzle format type ('Text' / 'File'): ");
-            string format = Console.ReadLine();
+            var format = Console.ReadLine();
 
             // If input is wrong, ask user for a new input.
-            if ((format != "Text") && (format != "File"))
+            if (format == null || (format != "Text") && (format != "File"))
             {
                 Console.WriteLine("\n! ERROR: Wrong puzzle format input !");
                 continue;
@@ -72,10 +73,10 @@ public static class SudokuPannel
 
             // Ask user if he would like to insert another format according to if the last request crashed or not.
             Console.Write("> Do you want to enter {0} puzzle? Enter ('Yes'/ 'No'): ", (uncrashed) ? "another" : "a different");
-            string again = Console.ReadLine();
+            var again = Console.ReadLine();
 
             // If input is wrong, ask user for a new input.
-            while ((again != "Yes") && (again != "No"))
+            while (again == null || (again != "Yes") && (again != "No"))
             {
                 Console.WriteLine("\n! ERROR: Wrong answer input !\n");
                 Console.Write("> Do you want to enter {0} puzzle? Enter ('Yes'/ 'No'): ", (uncrashed) ? "another" : "a different");
@@ -105,7 +106,14 @@ public static class SudokuPannel
     {
         // Asks user for the Sudoku puzzle file path.
         Console.Write("\n>> Enter puzzle format's file path: ");
-        string path = Console.ReadLine();
+        var path = Console.ReadLine();
+
+        // If input is wrong, ask user for a new input.
+        if (path == null)
+        {
+            Console.WriteLine("\n! ERROR: Wrong puzzle file path input !");
+            return false;
+        }
 
         // Next method calls may throw these exceptions:
         // (1) FileNotFoundException
@@ -116,7 +124,7 @@ public static class SudokuPannel
             // Opens path file on read to get user's puzzle string.
             string puzzleString = File.ReadAllText(@path);
             // Create SudokuPuzzle instance from user's puzzle string from file path.
-            SudokuPuzzle sp = new SudokuPuzzle(puzzleString);
+            var sp = new SudokuPuzzle(puzzleString);
             // Solve the SudokuPuzzle instance.
             path = SolvePuzzle(sp, path);
         }
@@ -129,7 +137,8 @@ public static class SudokuPannel
         }
 
         // Print solution file's path.
-        string header = path.Split('\\')[path.Split('\\').Length - 1];
+        var pathParts = path.Split('\\');
+        var header = pathParts[^1];
         Console.WriteLine($"\n>> Sudoku checked. Wrote possible solution to \"{header}\" at the same directory as the original .txt file\n");
 
         // Return "uncrashed" value.
@@ -144,7 +153,13 @@ public static class SudokuPannel
     {
         // Asks user for the Sudoku puzzle string.
         Console.Write("\n>> Enter text string puzzle format:\n");
-        string puzzleString = Console.ReadLine();
+        var puzzleString = Console.ReadLine();
+
+        if (puzzleString == null)
+        {
+            Console.WriteLine("\n! ERROR: null puzzle string input !");
+            return false;
+        }
 
         // Next method calls may throw these exceptions:
         // (1) Exception - "Couldn't create SudokuPuzzle Class: (Puzzle string's length)^0.25 isn't a natural number: *(Puzzle string's length)^0.25*"
@@ -152,7 +167,7 @@ public static class SudokuPannel
         try
         {
             // Create SudokuPuzzle instance from user's puzzle string input.
-            SudokuPuzzle sp = new SudokuPuzzle(puzzleString);
+            var sp = new SudokuPuzzle(puzzleString);
             // Solve the SudokuPuzzle instance.
             SolvePuzzle(sp);
         }
@@ -206,9 +221,6 @@ public static class SudokuPannel
     /// <param name="sp">SudokuPuzzle class reference with included puzzle details.</param>
     private static void SolvePuzzle(SudokuPuzzle sp)
     {
-        // Print sudoku puzzle string.
-        Console.WriteLine($"\n>>> Sudoku puzzle string input:\n{sp.SudokuSTR}\n");
-
         // Print sudoku board GUI.
         Console.WriteLine(">>> Sudoku puzzle GUI:");
         sp.Print();
@@ -227,8 +239,6 @@ public static class SudokuPannel
         // If Sudoku was solved:
         if (solved)
         {
-            // Print solved sudoku puzzle string.
-            Console.WriteLine($">>> Sudoku puzzle string input [SOLVED]:\n{sp.SudokuSTR}\n");
             // Print solved sudoku board GUI.
             Console.WriteLine(">>> Sudoku puzzle GUI [SOLVED]:");
             sp.Print();
