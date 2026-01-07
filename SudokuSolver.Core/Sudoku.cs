@@ -1,3 +1,5 @@
+using SudokuSolver.Core.Exceptions;
+
 namespace SudokuSolver.Core;
 
 
@@ -37,7 +39,7 @@ public class Sudoku
         // The exception notifies user about inputted puzzle string not being fitting sudoku's standards.
         if (powDot25 != (int)powDot25)
         {
-            throw new Exception($"Couldn't create Sudoku: (Puzzle string's lenght)^0.25 isn't a natural number: {powDot25}");
+            throw new InvalidSudokuBoardSizeException(puzzleInput.Count, powDot25);
         }
 
         RootSquareSide = (int)powDot25;
@@ -56,8 +58,7 @@ public class Sudoku
                 // The exception notifies user about inputted puzzle string containing unfitting char values for the specific puzzle.
                 if (indexValue < 0 || indexValue > Side)
                 {
-                    throw new Exception("Couldn't create Sudoku: Puzzle string contains invalid charactrs for the Lenght of the Sudoku puzzle string: "
-                        + $"'{indexValue}'");
+                    throw new InvalidSudokuValueException(indexValue, Side);
                 }
 
                 // assign value of puzzle string's current index to board's matrix aligned index.
