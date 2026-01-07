@@ -20,9 +20,9 @@ namespace SudokuSolver.Core;
  */
 
 /// <summary>
-/// Static class that includes DLX, Sudoku puzzle solving algorithm.
+/// DLX, Sudoku solver implementation.
 /// </summary>
-static class DLX
+public class DLX : ISudokuSolver
 {
     /// <summary>
     /// Creates a newly created sparse double linked matrix with included candidates
@@ -31,10 +31,10 @@ static class DLX
     /// </summary>
     /// <param name="sp">SudokuPuzzle class reference with included puzzle details.</param>
     /// <returns>MatNode head for the newly created sparse double linked matrix.</returns>
-    private static MatNode FillDoubleLinkedListMatrix(SudokuPuzzle sp)
+    private static MatNode FillDoubleLinkedListMatrix(Sudoku sp)
     {
         // Sudoku puzzle's matrix board.
-        int[,] puzzelMatrix = sp.SudokuMatrix;
+        int[,] puzzelMatrix = sp.Board;
 
         // Side length of the puzzle matrix.
         int side = sp.Side;
@@ -422,7 +422,7 @@ static class DLX
     /// <param name="sp">SudokuPuzzle class reference with included puzzle details.</param>
     /// <param name="solution">Stack containing MatNode Tag strings as puzzle positions for solution.</param>
     /// <returns>True if solution stack had tag position values, otherwise false.</returns>
-    private static bool UpdatePuzzle(SudokuPuzzle sp, Stack<string> solution)
+    private static bool UpdatePuzzle(Sudoku sp, Stack<string> solution)
     {
         // String positions -> sliced to find cell position and its value on Sudoku puzzle board.
         string pos;
@@ -449,7 +449,7 @@ static class DLX
             cordinations = pos.Split('R', 'C', '#');
 
             // Update Sudoku matrix board accordingly.
-            sp.SudokuMatrix[int.Parse(cordinations[1]) - 1, int.Parse(cordinations[2]) - 1] = int.Parse(cordinations[3]);
+            sp.Board[int.Parse(cordinations[1]) - 1, int.Parse(cordinations[2]) - 1] = int.Parse(cordinations[3]);
 
             positions--;
         }
@@ -465,7 +465,7 @@ static class DLX
             for (var j = 0; j < sp.Side; j++)
             {
                 // Append each characer value from matrix board to StringBuilder instance.
-                newSTR.Append((char)(sp.SudokuMatrix[i, j] + '0'));
+                newSTR.Append((char)(sp.Board[i, j] + '0'));
             }
         }
 
@@ -476,12 +476,12 @@ static class DLX
     /// <summary>
     /// Solves the Sudoku puzzle using the DLX algorithm.
     /// </summary>
-    /// <param name="sp">SudokuPuzzle class reference with included puzzle details.</param>
+    /// <param name="sudoku">SudokuPuzzle class reference with included puzzle details.</param>
     /// <returns>True if solution stack had tag position values, otherwise false (from UpdatePuzzle call).</returns>
-    public static bool Solve(SudokuPuzzle sp)
+    public bool Solve(Sudoku sudoku)
     {
         // Inits sparse double linked matrix to all availalbe candidates to complete the Sudoku puzzle.
-        MatNode head = FillDoubleLinkedListMatrix(sp);
+        MatNode head = FillDoubleLinkedListMatrix(sudoku);
 
         // Exit condition -> sparse matrix has no columns left (not constraints it need to fill).
         // Puzzle was entered solved!
@@ -494,7 +494,7 @@ static class DLX
         Stack<string> solution = Search(head);
 
         // If a valid solution exists (solution stack is not empty) -> update SudokuPuzzle object accordingly.
-        return UpdatePuzzle(sp, solution);
+        return UpdatePuzzle(sudoku, solution);
     }
 }
 

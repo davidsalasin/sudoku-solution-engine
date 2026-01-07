@@ -4,42 +4,38 @@
 
 ## Overview
 
-This project implements an efficient Sudoku solver using Donald Knuth's Algorithm X with the Dancing Links (DLX) technique. The solver can handle standard 9x9 Sudoku puzzles and provides both a console interface and unit tests.
-
-## Project Structure
-
-```
-SudokuSearchEngine/
-├── SudokuSolver/              # Main application project
-│   ├── Program.cs            # Entry point
-│   ├── SudokuPuzzle.cs       # Puzzle representation
-│   ├── SudokuPannel.cs       # User interface
-│   ├── DLX.cs                # Dancing Links algorithm implementation
-│   └── MatNodes.cs           # Matrix node structure
-└── SudokuSolver.UnitTests/   # Unit test project
-    └── PuzzleStringTests.cs  # Test cases
-```
+This project implements an efficient Sudoku solver using Donald Knuth's Algorithm X with the Dancing Links (DLX) technique.
 
 ## Features
 
+- Command Line Interface (CLI) application
 - Efficient DLX algorithm implementation for solving Sudoku puzzles
-- Console-based user interface
-- Comprehensive unit tests
 - .NET 10.0 compatible
+- Self-contained executable build support
 
 ## Requirements
 
 - .NET SDK 10.0 or later
 
+## Project Structure
+
+The solution consists of three projects:
+
+- **SudokuSolver.Core** - Core library containing the DLX algorithm and Sudoku solving logic
+- **SudokuSolver.CLI** - Command-line interface application
+- **SudokuSolver.Core.Tests** - Unit tests for the core library
+
 ## Building the Project
 
 1. Clone the repository:
+
    ```bash
    git clone <repository-url>
    cd sudoku-search-engine
    ```
 
 2. Restore NuGet packages:
+
    ```bash
    dotnet restore
    ```
@@ -49,13 +45,41 @@ SudokuSearchEngine/
    dotnet build
    ```
 
-## Running the Application
+## Building the CLI Executable
 
-To run the Sudoku solver:
+To build a self-contained, single-file executable for Windows x64:
 
 ```bash
-cd SudokuSolver
+build-cli.bat
+```
+
+This will create `SudokuSolver.CLI.exe` in the root directory. The executable is self-contained and does not require .NET to be installed on the target machine.
+
+Alternatively, you can build manually:
+
+```bash
+dotnet publish SudokuSolver.CLI\SudokuSolver.CLI.csproj -c Release --self-contained -r win-x64 -p:PublishSingleFile=true -p:DebugType=None -o .
+```
+
+## Running the Application
+
+To run the Sudoku solver during development:
+
+```bash
+cd SudokuSolver.CLI
 dotnet run
+```
+
+Or from the solution root:
+
+```bash
+dotnet run --project SudokuSolver.CLI\SudokuSolver.CLI.csproj
+```
+
+If you've built the executable using `build-cli.bat`, you can run it directly:
+
+```bash
+.\SudokuSolver.CLI.exe
 ```
 
 ## Running Tests
@@ -63,7 +87,7 @@ dotnet run
 To run the unit tests:
 
 ```bash
-cd SudokuSolver.UnitTests
+cd SudokuSolver.Core.Tests
 dotnet test
 ```
 
@@ -80,4 +104,3 @@ This solver uses the **Dancing Links (DLX)** algorithm, which is an efficient im
 - Each row represents a possible placement of a number in a cell
 - Each column represents a constraint that must be satisfied
 - The algorithm finds a set of rows that exactly covers all constraints
-
