@@ -6,9 +6,9 @@ namespace SudokuSolver.CLI.InputHandlers;
 public interface IInputHandler
 {
     /// <summary>
-    /// Handles the input and returns a list of integers.
+    /// Handles the input and returns a list of bytes.
     /// </summary>
     /// <param name="input">The input to handle.</param>
-    /// <returns>A list of integers.</returns>
-    IList<int> Handle(string input);
+    /// <returns>A list of bytes.</returns>
+    IList<byte> Handle(string input);
 }

@@ -11,20 +11,20 @@ public abstract class BaseStringInputHandler(ILogger logger) : IInputHandler
     const char MinNumericCharacter = '0';
 
     /// <summary>
-    /// Handles the input and returns a list of integers.
+    /// Handles the input and returns a list of bytes.
     /// </summary>
     /// <param name="input">The input to handle.</param>
-    /// <returns>A list of integers.</returns>
-    public abstract IList<int> Handle(string input);
+    /// <returns>A list of bytes.</returns>
+    public abstract IList<byte> Handle(string input);
 
     /// <summary>
-    /// Converts a string to a list of integers.
+    /// Converts a string to a list of bytes.
     /// </summary>
     /// <param name="input">The input to convert.</param>
-    /// <returns>A list of integers.</returns>
-    protected IList<int> StringToIntegerList(string input)
+    /// <returns>A list of bytes.</returns>
+    protected IList<byte> StringToByteList(string input)
     {
-        var inputList = new List<int>();
+        var inputList = new List<byte>();
         for (var i = 0; i < input.Length; i++)
         {
             if (input[i] < MinNumericCharacter)
@@ -32,7 +32,7 @@ public abstract class BaseStringInputHandler(ILogger logger) : IInputHandler
                 logger.LogWarning(NonNumericCharacterWarning, input[i]);
                 continue;
             }
-            inputList.Add(input[i] - MinNumericCharacter);
+            inputList.Add((byte)(input[i] - MinNumericCharacter));
         }
         return inputList;
     }

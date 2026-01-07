@@ -108,7 +108,8 @@ public abstract class BaseStringOutputHandler(ILogger logger, bool prettyPrint) 
 
             for (var j = 0; j < sudoku.Side; j++)
             {
-                int indexValue = sudoku.Board[i, j];
+                byte cellValue = sudoku.Board[i, j];
+                int indexValue = cellValue;
 
                 for (var k = indexValue.ToString().Length; k < maxSideDigits; k++)
                 {
@@ -116,7 +117,7 @@ public abstract class BaseStringOutputHandler(ILogger logger, bool prettyPrint) 
                 }
 
                 // Print empty space if value is 0, else print value:
-                if (sudoku.Board[i, j] > 0)
+                if (cellValue > 0)
                 {
                     sb.Append(indexValue);
                 }
@@ -211,6 +212,6 @@ public abstract class BaseStringOutputHandler(ILogger logger, bool prettyPrint) 
     /// <returns>A plain string representation of the Sudoku puzzle.</returns>
     private string SudokuToPlainString(Sudoku sudoku)
     {
-        return string.Join("", sudoku.Board.Cast<int>().Select(x => x.ToString()));
+        return string.Join("", sudoku.Board.Cast<byte>().Select(x => x.ToString()));
     }
 }

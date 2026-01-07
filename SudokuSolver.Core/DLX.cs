@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace SudokuSolver.Core;
 
 /**
@@ -34,7 +32,7 @@ public class DLX : ISudokuSolver
     private static MatNode FillDoubleLinkedListMatrix(Sudoku sp)
     {
         // Sudoku puzzle's matrix board.
-        int[,] puzzelMatrix = sp.Board;
+        byte[,] puzzelMatrix = sp.Board;
 
         // Side length of the puzzle matrix.
         int side = sp.Side;
@@ -449,24 +447,9 @@ public class DLX : ISudokuSolver
             cordinations = pos.Split('R', 'C', '#');
 
             // Update Sudoku matrix board accordingly.
-            sp.Board[int.Parse(cordinations[1]) - 1, int.Parse(cordinations[2]) - 1] = int.Parse(cordinations[3]);
+            sp.Board[int.Parse(cordinations[1]) - 1, int.Parse(cordinations[2]) - 1] = (byte)int.Parse(cordinations[3]);
 
             positions--;
-        }
-
-        // Receiving the new Sudoku puzzle string after the board has been solved:
-
-        // Object for appending a string in loops.
-        var newSTR = new StringBuilder();
-
-        // While moving on the Sudoku matrix board.
-        for (var i = 0; i < sp.Side; i++)
-        {
-            for (var j = 0; j < sp.Side; j++)
-            {
-                // Append each characer value from matrix board to StringBuilder instance.
-                newSTR.Append((char)(sp.Board[i, j] + '0'));
-            }
         }
 
         // The Sudoku puzzle has been solved -> returns true.
