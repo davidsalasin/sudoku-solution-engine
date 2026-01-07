@@ -1,82 +1,64 @@
 namespace SudokuSolver.Core;
 
-/**
- * ! BEHIND DLX !
- * 
- * Originally named Algorithm X (and given the name "Dancing links" by Donald Knuth) 
- * is a recursive, nondeterministic, depth-first, backtracking algorithm that finds all 
- * solutions to the exact cover problem. Some of the better-known exact cover problems
- * include tiling, the n queens problem, and (The one I used the algorithm for) Sudoku. 
- * dancing links is a technique for reverting the operation of deleting a node from 
- * a circular double linked list (sparse Matrix). It is particularly useful for efficiently
- * implementing backtracking algorithms.
- * 
- * * More about the background of the solving algorithm:
- * Exact cover - https://en.wikipedia.org/wiki/Exact_cover
- * Knuth's Algorithm X - https://en.wikipedia.org/wiki/Knuth%27s_Algorithm_X
- * Dancing Links - https://en.wikipedia.org/wiki/Dancing_Links
- */
-
 /// <summary>
-/// DLX, Sudoku solver implementation.
+/// Sudoku solver using DLX (Dancing Links) algorithm - an implementation of Knuth's Algorithm X.
+/// Originally named Algorithm X (and given the name "Dancing links" by Donald Knuth) 
+/// is a recursive, nondeterministic, depth-first, backtracking algorithm that finds all 
+/// solutions to the exact cover problem. Some of the better-known exact cover problems
+/// include tiling, the n queens problem, and (The one I used the algorithm for) Sudoku. 
+/// dancing links is a technique for reverting the operation of deleting a node from 
+/// a circular double linked list (sparse Matrix). It is particularly useful for efficiently
+/// implementing backtracking algorithms. 
+/// See: https://en.wikipedia.org/wiki/Knuth%27s_Algorithm_X
+/// See: https://en.wikipedia.org/wiki/Dancing_Links
+/// See: https://en.wikipedia.org/wiki/Exact_cover
 /// </summary>
 public class DLX : ISudokuSolver
 {
     /// <summary>
-    /// Creates a newly created sparse double linked matrix with included candidates
-    /// (as rows, based on already set positions from the received Sudoku puzzle), and constraints
-    /// (as cols, which present which 4 constraints each candidate presents).
+    /// Builds a sparse doubly-linked matrix representing all possible Sudoku placements and constraints.
     /// </summary>
-    /// <param name="sp">SudokuPuzzle class reference with included puzzle details.</param>
-    /// <returns>MatNode head for the newly created sparse double linked matrix.</returns>
-    private static MatNode FillDoubleLinkedListMatrix(Sudoku sp)
+    private static MatNode BuildMatrix(Sudoku sudoku)
     {
-        // Sudoku puzzle's matrix board.
-        byte[,] puzzelMatrix = sp.Board;
-
-        // Side length of the puzzle matrix.
-        int side = sp.Side;
-
-        // Root square of the side length of the puzzle Matrix. The side length of the inner squares of the puzzle.
-        int root = sp.RootSquareSide;
-
-        // Used in Tag values for MatNodes constructed for the sparse matrix.
-        int row, column, innerBox, value;
-
-        // Used as index positioning in Toroidal.
-        int header;
-
-        // Index values from values on Sudoku puzzle's board matrix.
-        int indexValue;
-
-        // Square area of the board.
+        int side = sudoku.Side;
+        int root = sudoku.RootSquareSide;
         int square = side * side;
+        int totalRows = side * square + 1;
+        int totalCols = square * 4 + 1;
 
-        // MatNode[,] Toroidal -> Used as framework for the sparse matrix (constructing candidates and constraints the
-        //                        way they are set to be. [0,0] will be saved for MatNode sparse matrix's head reference.
-        //                        The Borders of the Matrix will also initiate at Side(of a Sudoku board)^3 x Side^2 * 4
-        //                        as the amount of constraints there are in a Sudoku board:
-        //                        (1) Each row and column containing 1 value: Row - Column constraint.
-        //                        (2) Each row contains all values:           Row - Value constraint.
-        //                        (3) Each column contains all values:        Column - Value constraint.
-        //                        (4) Each innerBox contains all values:      InnerBox - Value constraint.
-        MatNode[,] Toroidal = new MatNode[side * square + 1, square * 4 + 1];
-        Toroidal[0, 0] = new MatNode("Head");
-        Toroidal[0, 0].ColumnLength = side * square;
+        MatNode[,] matrix = new MatNode[totalRows, totalCols];
+        MatNode head = new MatNode("Head");
+        matrix[0, 0] = head;
+        head.ColumnLength = side * square;
 
-        // Sets MatNode head value.
-        MatNode head = Toroidal[0, 0];
+        CreateConstraintColumns(matrix, head, side, square);
+        CreateCandidateRows(matrix, head, sudoku.Board, side, root, square);
+        RemovePreFilledCells(matrix, sudoku.Board, side, square);
 
-        MatNode ptr;
+        return head;
+    }
 
-        // Setting all constraint columns:
+    /// <summary>
+    /// Creates all constraint column headers: Row-Column, Row-Value, Column-Value, and Box-Value.
+    /// </summary>
+    private static void CreateConstraintColumns(MatNode[,] matrix, MatNode head, int side, int square)
+    {
+        CreateRowColumnConstraints(matrix, head, side, square);
+        CreateRowValueConstraints(matrix, head, side, square);
+        CreateColumnValueConstraints(matrix, head, side, square);
+        CreateBoxValueConstraints(matrix, head, side, square);
+    }
 
-        // Row - Column constraint.
-        row = 1;
-        column = 0;
-        for (var i = 1; i <= square; i++)
+    /// <summary>
+    /// Creates Row-Column constraint columns (each cell must contain exactly one value).
+    /// </summary>
+    private static void CreateRowColumnConstraints(MatNode[,] matrix, MatNode head, int side, int square)
+    {
+        int row = 1;
+        int column = 0;
+
+        for (int i = 1; i <= square; i++)
         {
-            // Moving on Rows according to Columns.
             column++;
             if (column > side)
             {
@@ -84,23 +66,23 @@ public class DLX : ISudokuSolver
                 row++;
             }
 
-            // Constructing new constraint column node for sparse matrix.
-            ptr = Toroidal[0, i] = new MatNode($"R{row}C{column}");
-            ptr.ColumnLength = 0;
-
-            // Connecting ptr (column) nodes to head.
-            ptr.LeftNode = head.LeftNode;
-            ptr.RightNode = head;
-            head.LeftNode.RightNode = ptr;
-            head.LeftNode = ptr;
+            MatNode columnHeader = new MatNode($"R{row}C{column}");
+            matrix[0, i] = columnHeader;
+            columnHeader.ColumnLength = 0;
+            LinkColumnToHead(columnHeader, head);
         }
+    }
 
-        // Row - Value constraint.
-        row = 1;
-        value = 0;
-        for (var i = 1; i <= square; i++)
+    /// <summary>
+    /// Creates Row-Value constraint columns (each row must contain each value exactly once).
+    /// </summary>
+    private static void CreateRowValueConstraints(MatNode[,] matrix, MatNode head, int side, int square)
+    {
+        int row = 1;
+        int value = 0;
+
+        for (int i = 1; i <= square; i++)
         {
-            // Moving on Rows according to Values.
             value++;
             if (value > side)
             {
@@ -108,23 +90,23 @@ public class DLX : ISudokuSolver
                 row++;
             }
 
-            // Constructing new constraint column node for sparse matrix.
-            ptr = Toroidal[0, square + i] = new MatNode($"R{row}#{value}");
-            ptr.ColumnLength = 0;
-
-            // Connecting ptr (column) nodes to head.
-            ptr.LeftNode = head.LeftNode;
-            ptr.RightNode = head;
-            head.LeftNode.RightNode = ptr;
-            head.LeftNode = ptr;
+            MatNode columnHeader = new MatNode($"R{row}#{value}");
+            matrix[0, square + i] = columnHeader;
+            columnHeader.ColumnLength = 0;
+            LinkColumnToHead(columnHeader, head);
         }
+    }
 
-        // Columns - Value constraint.
-        column = 1;
-        value = 0;
-        for (var i = 1; i <= square; i++)
+    /// <summary>
+    /// Creates Column-Value constraint columns (each column must contain each value exactly once).
+    /// </summary>
+    private static void CreateColumnValueConstraints(MatNode[,] matrix, MatNode head, int side, int square)
+    {
+        int column = 1;
+        int value = 0;
+
+        for (int i = 1; i <= square; i++)
         {
-            // Moving on Columns according to Values.
             value++;
             if (value > side)
             {
@@ -132,49 +114,59 @@ public class DLX : ISudokuSolver
                 column++;
             }
 
-            // Constructing new constraint column node for sparse matrix.
-            ptr = Toroidal[0, 2 * square + i] = new MatNode($"C{column}#{value}");
-            ptr.ColumnLength = 0;
-
-            // Connecting ptr (column) nodes to head.
-            ptr.LeftNode = head.LeftNode;
-            ptr.RightNode = head;
-            head.LeftNode.RightNode = ptr;
-            head.LeftNode = ptr;
+            MatNode columnHeader = new MatNode($"C{column}#{value}");
+            matrix[0, 2 * square + i] = columnHeader;
+            columnHeader.ColumnLength = 0;
+            LinkColumnToHead(columnHeader, head);
         }
+    }
 
+    /// <summary>
+    /// Creates Box-Value constraint columns (each box must contain each value exactly once).
+    /// </summary>
+    private static void CreateBoxValueConstraints(MatNode[,] matrix, MatNode head, int side, int square)
+    {
+        int box = 1;
+        int value = 0;
 
-        //InnerBox - Value constraint.
-        innerBox = 1;
-        value = 0;
-        for (var i = 1; i <= square; i++)
+        for (int i = 1; i <= square; i++)
         {
-            // Moving on InnerBoxes according to Values.
             value++;
             if (value > side)
             {
                 value = 1;
-                innerBox++;
+                box++;
             }
 
-            // Constructing new constraint column node for sparse matrix.
-            ptr = Toroidal[0, 3 * square + i] = new MatNode($"B{innerBox}#{value}");
-            ptr.ColumnLength = 0;
-
-            // Connecting ptr (column) nodes to head.
-            ptr.LeftNode = head.LeftNode;
-            ptr.RightNode = head;
-            head.LeftNode.RightNode = ptr;
-            head.LeftNode = ptr;
+            MatNode columnHeader = new MatNode($"B{box}#{value}");
+            matrix[0, 3 * square + i] = columnHeader;
+            columnHeader.ColumnLength = 0;
+            LinkColumnToHead(columnHeader, head);
         }
+    }
 
-        // Setting all candidate rows:
-        row = 1;
-        column = 1;
-        value = 0;
-        for (var i = 1; i <= square * side; i++)
+    /// <summary>
+    /// Links a column header to the head node in the horizontal linked list.
+    /// </summary>
+    private static void LinkColumnToHead(MatNode columnHeader, MatNode head)
+    {
+        columnHeader.LeftNode = head.LeftNode;
+        columnHeader.RightNode = head;
+        head.LeftNode.RightNode = columnHeader;
+        head.LeftNode = columnHeader;
+    }
+
+    /// <summary>
+    /// Creates all candidate rows representing possible placements (row, column, value).
+    /// </summary>
+    private static void CreateCandidateRows(MatNode[,] matrix, MatNode head, byte[,] puzzleBoard, int side, int root, int square)
+    {
+        int row = 1;
+        int column = 1;
+        int value = 0;
+
+        for (int i = 1; i <= square * side; i++)
         {
-            // Moving on Rows according to Columns according to Values.
             value++;
             if (value > side)
             {
@@ -187,297 +179,266 @@ public class DLX : ISudokuSolver
                 }
             }
 
-            // Constructing new candidate row node for sparse matrix.
-            ptr = Toroidal[i, 0] = new MatNode($"R{row}C{column}#{value}");
+            MatNode rowHeader = new MatNode($"R{row}C{column}#{value}");
+            matrix[i, 0] = rowHeader;
 
-            // Connecting ptr (row) nodes to head.               
-            ptr.UpNode = head.UpNode;
-            ptr.DownNode = head;
-            head.UpNode.DownNode = ptr;
-            head.UpNode = ptr;
-            ptr.TopNode = head;
-
-            // Constructing 4 constraint nodes for each cell value (position value) on Sudoku board.
-
-            // Pleasing Row - Column constraint.
-            header = side * (row - 1) + column;
-            Toroidal[i, header] = new MatNode($"R{row}C{column}#{value}", Toroidal[0, header].UpNode, Toroidal[0, header], Toroidal[i, 0], Toroidal[i, 0].LeftNode, Toroidal[0, header]);
-
-            // Pleasing Row - Value constraint.
-            header = square + side * (row - 1) + value;
-            Toroidal[i, header] = new MatNode($"R{row}C{column}#{value}", Toroidal[0, header].UpNode, Toroidal[0, header], Toroidal[i, 0], Toroidal[i, 0].LeftNode, Toroidal[0, header]);
-
-            // Pleasing Column - Value constraint.
-            header = 2 * square + side * (column - 1) + value;
-            Toroidal[i, header] = new MatNode($"R{row}C{column}#{value}", Toroidal[0, header].UpNode, Toroidal[0, header], Toroidal[i, 0], Toroidal[i, 0].LeftNode, Toroidal[0, header]);
-
-            // Pleasing InnerBox - Value constraint.
-            header = 3 * square + side * (((row - 1) / root * root) + (column - 1) / root) + value;
-            Toroidal[i, header] = new MatNode($"R{row}C{column}#{value}", Toroidal[0, header].UpNode, Toroidal[0, header], Toroidal[i, 0], Toroidal[i, 0].LeftNode, Toroidal[0, header]);
+            LinkRowToHead(rowHeader, head);
+            CreateConstraintNodesForCandidate(matrix, i, rowHeader, row, column, value, side, root, square);
         }
+    }
 
-        // Removing all existing position values in the puzzle board -> By removing its candidates, 
-        // and candidates bound to the same constraints:
-        for (row = 0; row < side; row++)
+    /// <summary>
+    /// Links a row header to the head node in the vertical linked list.
+    /// </summary>
+    private static void LinkRowToHead(MatNode rowHeader, MatNode head)
+    {
+        rowHeader.UpNode = head.UpNode;
+        rowHeader.DownNode = head;
+        head.UpNode.DownNode = rowHeader;
+        head.UpNode = rowHeader;
+        rowHeader.TopNode = head;
+    }
+
+    /// <summary>
+    /// Creates the four constraint nodes for a candidate (Row-Column, Row-Value, Column-Value, Box-Value).
+    /// </summary>
+    private static void CreateConstraintNodesForCandidate(MatNode[,] matrix, int rowIndex, MatNode rowHeader, int row, int column, int value, int side, int root, int square)
+    {
+        string tag = $"R{row}C{column}#{value}";
+
+        // Row-Column constraint
+        int headerIndex = side * (row - 1) + column;
+        CreateConstraintNode(matrix, rowIndex, headerIndex, rowHeader, tag);
+
+        // Row-Value constraint
+        headerIndex = square + side * (row - 1) + value;
+        CreateConstraintNode(matrix, rowIndex, headerIndex, rowHeader, tag);
+
+        // Column-Value constraint
+        headerIndex = 2 * square + side * (column - 1) + value;
+        CreateConstraintNode(matrix, rowIndex, headerIndex, rowHeader, tag);
+
+        // Box-Value constraint
+        int boxIndex = ((row - 1) / root * root) + (column - 1) / root;
+        headerIndex = 3 * square + side * boxIndex + value;
+        CreateConstraintNode(matrix, rowIndex, headerIndex, rowHeader, tag);
+    }
+
+    /// <summary>
+    /// Creates a single constraint node and links it into the matrix.
+    /// </summary>
+    private static void CreateConstraintNode(MatNode[,] matrix, int rowIndex, int colIndex, MatNode rowHeader, string tag)
+    {
+        MatNode columnHeader = matrix[0, colIndex];
+        matrix[rowIndex, colIndex] = new MatNode(
+            tag,
+            columnHeader.UpNode,
+            columnHeader,
+            rowHeader,
+            rowHeader.LeftNode,
+            columnHeader
+        );
+    }
+
+    /// <summary>
+    /// Removes pre-filled cells from the matrix by covering their constraints.
+    /// </summary>
+    private static void RemovePreFilledCells(MatNode[,] matrix, byte[,] puzzleBoard, int side, int square)
+    {
+        for (int row = 0; row < side; row++)
         {
-            for (column = 0; column < side; column++)
+            for (int column = 0; column < side; column++)
             {
-                indexValue = puzzelMatrix[row, column];
-                if (indexValue != 0)
+                byte cellValue = puzzleBoard[row, column];
+                if (cellValue != 0)
                 {
-                    // Finding candidate by (row/column/value) on sparse matrix's framework matrix.
-                    header = indexValue + side * column + square * row;
-                    ptr = Toroidal[header, 0];
+                    int rowIndex = cellValue + side * column + square * row;
+                    MatNode candidateRow = matrix[rowIndex, 0];
 
-                    // Disconnect (Cover) row's col node.
-                    ptr.UpNode.DownNode = ptr.DownNode;
-                    ptr.DownNode.UpNode = ptr.UpNode;
+                    // Remove the candidate row from vertical list
+                    candidateRow.UpNode.DownNode = candidateRow.DownNode;
+                    candidateRow.DownNode.UpNode = candidateRow.UpNode;
 
-                    for (var pos = ptr.RightNode; pos != ptr; pos = pos.RightNode)
+                    // Cover all constraints satisfied by this candidate
+                    for (MatNode constraint = candidateRow.RightNode; constraint != candidateRow; constraint = constraint.RightNode)
                     {
-                        // Covering each constraint please by candidate
-                        Cover(pos);
+                        Cover(constraint);
                     }
                 }
             }
         }
-
-        // MatNode head, for a newly created sparse double linked matrix with included candidates
-        return head;
     }
 
     /// <summary>
-    /// Returns MatNode of a column head with the least amount of MatNodes in its column.
+    /// Finds the column with the minimum number of nodes (optimization for Algorithm X).
     /// </summary>
-    /// <param name="head">Head for a sparse double linked matrix.</param>
-    /// <returns>MatNode of a column head with the least amount of MatNodes in its column.</returns>
-    private static MatNode GetMinCol(MatNode head)
+    private static MatNode FindMinimumColumn(MatNode head)
     {
-        // Get The first Node to the right of the head of the sparse matrix.
-        MatNode min = head.RightNode;
+        MatNode minColumn = head.RightNode;
 
-        // While moving on all of the column heads.
-        for (var pos = min.RightNode; pos != head; pos = pos.RightNode)
+        for (MatNode column = minColumn.RightNode; column != head; column = column.RightNode)
         {
-            // If column head pos's column lenght (MatNode count) is smaller then min's -> Update min to pos.
-            if (pos.ColumnLength < min.ColumnLength)
+            if (column.ColumnLength < minColumn.ColumnLength)
             {
-                min = pos;
+                minColumn = column;
             }
         }
 
-        // Returns MatNode of a column head with the least amount of MatNodes in its column.
-        return min;
+        return minColumn;
     }
 
     /// <summary>
-    /// Unlinks node's column, and each row in the column from the sparse matrix it's in.
+    /// Covers a column and all rows that satisfy its constraint.
     /// </summary>
-    /// <param name="node">The MatNode to cover.</param>
     private static void Cover(MatNode node)
     {
-        // Get the pointer to the header of column to which this node belong.
-        MatNode top = node.TopNode;
+        MatNode columnHeader = node.TopNode;
 
-        // Unlink column header from it's neighbors.
-        top.RightNode.LeftNode = top.LeftNode;
-        top.LeftNode.RightNode = top.RightNode;
+        // Unlink column header
+        columnHeader.RightNode.LeftNode = columnHeader.LeftNode;
+        columnHeader.LeftNode.RightNode = columnHeader.RightNode;
 
-        // Move down the column and remove each row by traversing right.
-        for (var row = top.DownNode; row != top; row = row.DownNode)
+        // Remove all rows in this column
+        for (MatNode row = columnHeader.DownNode; row != columnHeader; row = row.DownNode)
         {
-            for (var ptr = row.RightNode; ptr != row; ptr = ptr.RightNode)
+            for (MatNode constraint = row.RightNode; constraint != row; constraint = constraint.RightNode)
             {
-                ptr.UpNode.DownNode = ptr.DownNode;
-                ptr.DownNode.UpNode = ptr.UpNode;
-
-                // after unlinking row node, decrement the node count in column header.
-                ptr.TopNode.ColumnLength--;
+                constraint.UpNode.DownNode = constraint.DownNode;
+                constraint.DownNode.UpNode = constraint.UpNode;
+                constraint.TopNode.ColumnLength--;
             }
         }
     }
 
     /// <summary>
-    /// Links node's column, and each row in the column from the sparse matrix it's in.
+    /// Uncovers a column and restores all rows that satisfy its constraint.
     /// </summary>
-    /// <param name="node">The MatNode to uncover.</param>
     private static void Uncover(MatNode node)
     {
-        // Get the pointer to the header of column to which this node belong.
-        MatNode top = node.TopNode;
+        MatNode columnHeader = node.TopNode;
 
-        // Move down the column and link back each row by traversing left.
-        for (var row = top.UpNode; row != top; row = row.UpNode)
+        // Restore all rows in this column (in reverse order)
+        for (MatNode row = columnHeader.UpNode; row != columnHeader; row = row.UpNode)
         {
-            for (var ptr = row.LeftNode; ptr != row; ptr = ptr.LeftNode)
+            for (MatNode constraint = row.LeftNode; constraint != row; constraint = constraint.LeftNode)
             {
-                ptr.UpNode.DownNode = ptr;
-                ptr.DownNode.UpNode = ptr;
-
-                // After linking row node, increment the node count in column header.
-                ptr.TopNode.ColumnLength++;
+                constraint.UpNode.DownNode = constraint;
+                constraint.DownNode.UpNode = constraint;
+                constraint.TopNode.ColumnLength++;
             }
         }
 
-        // Link the column header from it's neighbors.
-        top.RightNode.LeftNode = top;
-        top.LeftNode.RightNode = top;
+        // Relink column header
+        columnHeader.RightNode.LeftNode = columnHeader;
+        columnHeader.LeftNode.RightNode = columnHeader;
     }
 
     /// <summary>
-    /// Recursive method that searches for a solution. Calls itself until sparse matrix has no columns left
-    /// (not constraints it need to fill, true case) or until the column with the minimum amount of MatNodes
-    /// under it counts 0 (can't fill left constraints, false case).
+    /// Recursive search for a solution using Algorithm X.
     /// </summary>
-    /// <param name="head">Head for a sparse double linked matrix.</param>
-    /// <param name="solution">Contains MatNode Tag strings as puzzle positions for solution.</param>
-    /// <returns>True if a solution has been found, otherwise false.</returns>
     private static bool Search(MatNode head, Stack<string> solution)
     {
-        // True exit condition -> sparse matrix has no columns left (not constraints it need to fill).
+        // Solution found: no constraints remaining
         if (head.RightNode == head)
         {
             return true;
         }
 
-        // Choose column deterministically -> calls GetMinCol to find head column MatNode with the minimum
-        //                                    amount of MatNodes under it.
-        MatNode column = GetMinCol(head);
+        MatNode column = FindMinimumColumn(head);
 
-        // True exit condition -> the column with the minimum amount of MatNodes under it counts 0 (can't fill 
-        //                        left constraints).
+        // No solution possible: column has no candidates
         if (column.ColumnLength == 0)
         {
             return false;
         }
 
-        // Cover chosen column.
         Cover(column);
 
-        // Moving on all rows belonging to column.
+        // Try each candidate row in this column
         for (MatNode row = column.DownNode; row != column; row = row.DownNode)
         {
-            // Adds position value (row tag as "candidate") to solution stack.
             solution.Push(row.Tag);
 
-            // Coving row nodes in column -> in case position value leads to a result.
-            for (MatNode pos = row.RightNode; pos != row; pos = pos.RightNode)
+            // Cover all constraints satisfied by this row
+            for (MatNode constraint = row.RightNode; constraint != row; constraint = constraint.RightNode)
             {
-                if (pos.TopNode != head)
+                if (constraint.TopNode != head)
                 {
-                    Cover(pos);
+                    Cover(constraint);
                 }
             }
 
-            // If solution was found from position value -> return all the way back to the original other Search call
+            // Recursively search for solution
             if (Search(head, solution))
             {
                 return true;
             }
 
-            // If position value didn't lead to result:
-
-            // Uncoving row nodes in column -> as it is found position value didn't lead to result.
-            for (MatNode pos = row.LeftNode; pos != row; pos = pos.LeftNode)
+            // Backtrack: uncover constraints
+            for (MatNode constraint = row.LeftNode; constraint != row; constraint = constraint.LeftNode)
             {
-                if (pos.TopNode != head)
+                if (constraint.TopNode != head)
                 {
-                    Uncover(pos);
+                    Uncover(constraint);
                 }
             }
 
-            // Pops position value (row tag as "candidate") from solution stack (to remove it).
             solution.Pop();
         }
 
-        // If column didn't uncover the solution, uncover the chosen column the return false (solution not found).
         Uncover(column);
-
         return false;
     }
 
     /// <summary>
-    /// Calls the other Search static method with a new solution stack.
+    /// Initiates the search and returns the solution stack.
     /// </summary>
-    /// <param name="head">Head for a sparse double linked matrix.</param>
-    /// <returns>Stack containing MatNode Tag strings as puzzle positions for solution.</returns>
     private static Stack<string> Search(MatNode head)
     {
-        // Constructs new Stack<string> instance -> solutions.
         var solution = new Stack<string>();
-
-        // Call the other Search class with solutions passed to it, for it to be filled with positions values
-        // (row tags) if a solution is available for the passed board.
         Search(head, solution);
-
-        // Returns solution stack.
         return solution;
     }
 
     /// <summary>
-    /// Updates SudokuPuzzle sp to solution if a solution is found.
+    /// Applies the solution to the Sudoku board.
     /// </summary>
-    /// <param name="sp">SudokuPuzzle class reference with included puzzle details.</param>
-    /// <param name="solution">Stack containing MatNode Tag strings as puzzle positions for solution.</param>
-    /// <returns>True if solution stack had tag position values, otherwise false.</returns>
-    private static bool UpdatePuzzle(Sudoku sp, Stack<string> solution)
+    private static bool ApplySolution(Sudoku sudoku, Stack<string> solution)
     {
-        // String positions -> sliced to find cell position and its value on Sudoku puzzle board.
-        string pos;
-
-        // String[] cordinations -> positions sliced into cordinations -> index: 1-Row 2-Column 3-Value.
-        string[] cordinations;
-
-        // Positions amount for values store in the solution stack.
-        var positions = solution.Count;
-
-        // If solution stack is empty -> return false (exit without updating anything).
-        if (positions == 0)
+        if (solution.Count == 0)
         {
             return false;
         }
 
-        // While there are still position values in the solution stack.
-        while (positions > 0)
+        while (solution.Count > 0)
         {
-            // Pop position value from solution stack.
-            pos = solution.Pop();
+            string position = solution.Pop();
+            string[] parts = position.Split('R', 'C', '#');
 
-            // Split (slice) position string to its values of Row / Column / Value.
-            cordinations = pos.Split('R', 'C', '#');
+            int row = int.Parse(parts[1]) - 1;
+            int column = int.Parse(parts[2]) - 1;
+            byte value = (byte)int.Parse(parts[3]);
 
-            // Update Sudoku matrix board accordingly.
-            sp.Board[int.Parse(cordinations[1]) - 1, int.Parse(cordinations[2]) - 1] = (byte)int.Parse(cordinations[3]);
-
-            positions--;
+            sudoku.Board[row, column] = value;
         }
 
-        // The Sudoku puzzle has been solved -> returns true.
         return true;
     }
 
     /// <summary>
     /// Solves the Sudoku puzzle using the DLX algorithm.
     /// </summary>
-    /// <param name="sudoku">SudokuPuzzle class reference with included puzzle details.</param>
-    /// <returns>True if solution stack had tag position values, otherwise false (from UpdatePuzzle call).</returns>
     public bool Solve(Sudoku sudoku)
     {
-        // Inits sparse double linked matrix to all availalbe candidates to complete the Sudoku puzzle.
-        MatNode head = FillDoubleLinkedListMatrix(sudoku);
+        MatNode head = BuildMatrix(sudoku);
 
-        // Exit condition -> sparse matrix has no columns left (not constraints it need to fill).
-        // Puzzle was entered solved!
+        // Puzzle already solved
         if (head.RightNode == head)
         {
             return true;
         }
 
-        // Finds tag (strings) row solutions and returns them in a stack.
         Stack<string> solution = Search(head);
-
-        // If a valid solution exists (solution stack is not empty) -> update SudokuPuzzle object accordingly.
-        return UpdatePuzzle(sudoku, solution);
+        return ApplySolution(sudoku, solution);
     }
 }
-

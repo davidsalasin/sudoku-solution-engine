@@ -7,7 +7,8 @@ using SudokuSolver.CLI.OutputHandlers;
 using SudokuSolver.Core;
 
 Parser.Default.ParseArguments<Options>(args)
-    .WithParsed(options => {
+    .WithParsed(options =>
+    {
         var loggerFactory = new SudokuSolver.CLI.LoggerFactory(options.ConsoleLogging);
         var logger = loggerFactory.GetLogger(nameof(Program));
 
@@ -17,10 +18,13 @@ Parser.Default.ParseArguments<Options>(args)
 
         var facade = new Facade(loggerFactory, inputHandlerFactory, sudokuSolverFactory, outputHandlerFactory);
 
-        try {
+        try
+        {
             facade.Run(options);
-        } catch (Exception e) {
-            logger.LogError(e, "Error running Sudoku Solver: {Message}", e.Message);
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine($"Error running Sudoku Solver: {e.Message}");
             Environment.Exit(1);
         }
     });
