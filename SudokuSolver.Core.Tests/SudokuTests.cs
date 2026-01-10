@@ -57,6 +57,18 @@ public class SudokuTests
         yield return new object[] { new List<byte>(new byte[65536]), "256x256Board_ThrowsSudokuBoardSizeLimitExceededException" };
     }
 
+    private static IEnumerable<object[]> GetSolverLimitExceededTestCases()
+    {
+        // 49x49 board (2401 elements, RootSquareSide = 7, exceeds practical solver limit of 36x36)
+        yield return new object[] { new List<byte>(new byte[2401]), "49x49Board_ThrowsSudokuSolverLimitExceededException" };
+        
+        // 64x64 board (4096 elements, RootSquareSide = 8, exceeds practical solver limit of 36x36)
+        yield return new object[] { new List<byte>(new byte[4096]), "64x64Board_ThrowsSudokuSolverLimitExceededException" };
+        
+        // 100x100 board (10000 elements, RootSquareSide = 10, exceeds practical solver limit of 36x36)
+        yield return new object[] { new List<byte>(new byte[10000]), "100x100Board_ThrowsSudokuSolverLimitExceededException" };
+    }
+
     [DataTestMethod]
     [DynamicData(nameof(GetValidInputTestCases), DynamicDataSourceType.Method)]
     public void Constructor_GivenValidInput_InitializesCorrectly(List<byte> boardData, string testCaseName)
@@ -95,6 +107,14 @@ public class SudokuTests
     {
         // Act & Assert:
         Assert.ThrowsException<SudokuBoardSizeLimitExceededException>(() => new Sudoku(boardData));
+    }
+
+    [DataTestMethod]
+    [DynamicData(nameof(GetSolverLimitExceededTestCases), DynamicDataSourceType.Method)]
+    public void Constructor_GivenBoardSizeExceedingSolverLimit_ThrowsSudokuSolverLimitExceededException(List<byte> boardData, string testCaseName)
+    {
+        // Act & Assert:
+        Assert.ThrowsException<SudokuSolverLimitExceededException>(() => new Sudoku(boardData));
     }
 
     [TestMethod]

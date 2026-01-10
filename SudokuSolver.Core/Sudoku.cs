@@ -22,6 +22,19 @@ public class Sudoku
     const int MaxBoardSideSize = 225;
 
     /// <summary>
+    /// Practical solver limit for inner square size (RootSquareSide).
+    /// The DLX algorithm currently runs out of memory for boards larger than 36x36 (6*6).
+    /// This is a temporary limitation that may be addressed in the future.
+    /// </summary>
+    const int PracticalSolverRootSquareSide = 6;
+
+    /// <summary>
+    /// Practical solver limit for board side size.
+    /// This is PracticalSolverRootSquareSide squared (6*6 = 36).
+    /// </summary>
+    const int PracticalSolverBoardSideSize = 36;
+
+    /// <summary>
     /// Board matrix of the Sudoku puzzle.
     /// </summary>
     public byte[,] Board { get; set; }
@@ -55,6 +68,11 @@ public class Sudoku
         if (RootSquareSide > MaxRootSquareSide)
         {
             throw new SudokuBoardSizeLimitExceededException(Side, MaxBoardSideSize);
+        }
+
+        if (RootSquareSide > PracticalSolverRootSquareSide)
+        {
+            throw new SudokuSolverLimitExceededException(Side, PracticalSolverBoardSideSize);
         }
 
         Board = new byte[Side, Side];
