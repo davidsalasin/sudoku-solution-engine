@@ -10,19 +10,6 @@ This project implements an efficient Sudoku solver using Donald Knuth's Algorith
 
 - Command Line Interface (CLI) executable
 - Efficient DLX algorithm implementation for solving Sudoku puzzles
-- .NET 10.0 compatible
-
-## Requirements
-
-- .NET SDK 10.0 or later
-
-## Project Structure
-
-The solution consists of three projects:
-
-- **SudokuSolutionEngine.Core** - Core library containing the DLX algorithm and Sudoku solving logic
-- **SudokuSolutionEngine.CLI** - Command-line interface application
-- **SudokuSolutionEngine.Core.Tests** - Unit tests for the core library
 
 ## Quick Start
 

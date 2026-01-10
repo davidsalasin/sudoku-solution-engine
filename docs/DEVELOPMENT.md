@@ -5,7 +5,6 @@ Quick reference for developers building, testing, and contributing to the Sudoku
 ## Prerequisites
 
 - .NET SDK 10.0 or later
-- Code editor (Visual Studio, VS Code, Rider, etc.)
 
 ## Project Structure
 
@@ -56,24 +55,3 @@ dotnet test --collect:"XPlat Code Coverage"   # With coverage
 - **Core Layer**: Business logic, DLX algorithm, no external dependencies
 - **CLI Layer**: User interaction, input/output handlers
 - **Test Layer**: MSTest framework
-
-### Design Patterns
-
-- Factory Pattern: Solvers, input/output handlers
-- Facade Pattern: Simplified interface via `Facade` class
-- Strategy Pattern: Pluggable input/output handlers
-
-## Contributing
-
-1. Create feature branch from `main`
-2. Implement changes with tests
-3. Ensure all tests pass
-4. Update documentation
-5. Submit pull request
-
-### Code Style
-
-- Follow C# conventions
-- XML documentation for public APIs
-- Single-purpose methods
-- Meaningful names
