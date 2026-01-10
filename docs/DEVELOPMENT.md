@@ -10,6 +10,7 @@ Quick reference for developers building, testing, and contributing to the Sudoku
 
 - **SudokuSolutionEngine.Core** - Core library (DLX algorithm, Sudoku solving logic)
 - **SudokuSolutionEngine.CLI** - Command-line interface application
+- **SudokuSolutionEngine.API** - REST API application (see [API Usage Guide](API_USAGE.md))
 - **SudokuSolutionEngine.Core.Tests** - Unit tests
 
 ## Building
@@ -53,5 +54,5 @@ dotnet test --collect:"XPlat Code Coverage"   # With coverage
 ## Architecture
 
 - **Core Layer**: Business logic, DLX algorithm, no external dependencies
-- **CLI Layer**: User interaction, input/output handlers
+- **UI Layer**: REST API (ASP.NET Core) and CLI interfaces that consume the core library
 - **Test Layer**: MSTest framework
