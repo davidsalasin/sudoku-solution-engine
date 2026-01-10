@@ -5,7 +5,7 @@ namespace SudokuSolver.Core;
 /// Originally named Algorithm X (and given the name "Dancing links" by Donald Knuth) 
 /// is a recursive, nondeterministic, depth-first, backtracking algorithm that finds all 
 /// solutions to the exact cover problem. Some of the better-known exact cover problems
-/// include tiling, the n queens problem, and (The one I used the algorithm for) Sudoku. 
+/// include tiling, the n queens problem, and Sudoku. 
 /// dancing links is a technique for reverting the operation of deleting a node from 
 /// a circular double linked list (sparse Matrix). It is particularly useful for efficiently
 /// implementing backtracking algorithms. 
@@ -18,7 +18,7 @@ public class DLX : ISudokuSolver
     /// <summary>
     /// Builds a sparse doubly-linked matrix representing all possible Sudoku placements and constraints.
     /// </summary>
-    private static MatNode BuildMatrix(Sudoku sudoku)
+    private static DancingLinksNode BuildMatrix(Sudoku sudoku)
     {
         int side = sudoku.Side;
         int root = sudoku.RootSquareSide;
@@ -26,10 +26,10 @@ public class DLX : ISudokuSolver
         int totalRows = side * square + 1;
         int totalCols = square * 4 + 1;
 
-        MatNode[,] matrix = new MatNode[totalRows, totalCols];
-        MatNode head = new MatNode("Head");
+        DancingLinksNode[,] matrix = new DancingLinksNode[totalRows, totalCols];
+        DancingLinksNode head = new DancingLinksNode("Head");
         matrix[0, 0] = head;
-        head.ColumnLength = side * square;
+        head.Size = side * square;
 
         CreateConstraintColumns(matrix, head, side, square);
         CreateCandidateRows(matrix, head, sudoku.Board, side, root, square);
@@ -41,7 +41,7 @@ public class DLX : ISudokuSolver
     /// <summary>
     /// Creates all constraint column headers: Row-Column, Row-Value, Column-Value, and Box-Value.
     /// </summary>
-    private static void CreateConstraintColumns(MatNode[,] matrix, MatNode head, int side, int square)
+    private static void CreateConstraintColumns(DancingLinksNode[,] matrix, DancingLinksNode head, int side, int square)
     {
         CreateRowColumnConstraints(matrix, head, side, square);
         CreateRowValueConstraints(matrix, head, side, square);
@@ -52,7 +52,7 @@ public class DLX : ISudokuSolver
     /// <summary>
     /// Creates Row-Column constraint columns (each cell must contain exactly one value).
     /// </summary>
-    private static void CreateRowColumnConstraints(MatNode[,] matrix, MatNode head, int side, int square)
+    private static void CreateRowColumnConstraints(DancingLinksNode[,] matrix, DancingLinksNode head, int side, int square)
     {
         int row = 1;
         int column = 0;
@@ -66,9 +66,9 @@ public class DLX : ISudokuSolver
                 row++;
             }
 
-            MatNode columnHeader = new MatNode($"R{row}C{column}");
+            DancingLinksNode columnHeader = new DancingLinksNode($"R{row}C{column}");
             matrix[0, i] = columnHeader;
-            columnHeader.ColumnLength = 0;
+            columnHeader.Size = 0;
             LinkColumnToHead(columnHeader, head);
         }
     }
@@ -76,7 +76,7 @@ public class DLX : ISudokuSolver
     /// <summary>
     /// Creates Row-Value constraint columns (each row must contain each value exactly once).
     /// </summary>
-    private static void CreateRowValueConstraints(MatNode[,] matrix, MatNode head, int side, int square)
+    private static void CreateRowValueConstraints(DancingLinksNode[,] matrix, DancingLinksNode head, int side, int square)
     {
         int row = 1;
         int value = 0;
@@ -90,9 +90,9 @@ public class DLX : ISudokuSolver
                 row++;
             }
 
-            MatNode columnHeader = new MatNode($"R{row}#{value}");
+            DancingLinksNode columnHeader = new DancingLinksNode($"R{row}#{value}");
             matrix[0, square + i] = columnHeader;
-            columnHeader.ColumnLength = 0;
+            columnHeader.Size = 0;
             LinkColumnToHead(columnHeader, head);
         }
     }
@@ -100,7 +100,7 @@ public class DLX : ISudokuSolver
     /// <summary>
     /// Creates Column-Value constraint columns (each column must contain each value exactly once).
     /// </summary>
-    private static void CreateColumnValueConstraints(MatNode[,] matrix, MatNode head, int side, int square)
+    private static void CreateColumnValueConstraints(DancingLinksNode[,] matrix, DancingLinksNode head, int side, int square)
     {
         int column = 1;
         int value = 0;
@@ -114,9 +114,9 @@ public class DLX : ISudokuSolver
                 column++;
             }
 
-            MatNode columnHeader = new MatNode($"C{column}#{value}");
+            DancingLinksNode columnHeader = new DancingLinksNode($"C{column}#{value}");
             matrix[0, 2 * square + i] = columnHeader;
-            columnHeader.ColumnLength = 0;
+            columnHeader.Size = 0;
             LinkColumnToHead(columnHeader, head);
         }
     }
@@ -124,7 +124,7 @@ public class DLX : ISudokuSolver
     /// <summary>
     /// Creates Box-Value constraint columns (each box must contain each value exactly once).
     /// </summary>
-    private static void CreateBoxValueConstraints(MatNode[,] matrix, MatNode head, int side, int square)
+    private static void CreateBoxValueConstraints(DancingLinksNode[,] matrix, DancingLinksNode head, int side, int square)
     {
         int box = 1;
         int value = 0;
@@ -138,9 +138,9 @@ public class DLX : ISudokuSolver
                 box++;
             }
 
-            MatNode columnHeader = new MatNode($"B{box}#{value}");
+            DancingLinksNode columnHeader = new DancingLinksNode($"B{box}#{value}");
             matrix[0, 3 * square + i] = columnHeader;
-            columnHeader.ColumnLength = 0;
+            columnHeader.Size = 0;
             LinkColumnToHead(columnHeader, head);
         }
     }
@@ -148,18 +148,18 @@ public class DLX : ISudokuSolver
     /// <summary>
     /// Links a column header to the head node in the horizontal linked list.
     /// </summary>
-    private static void LinkColumnToHead(MatNode columnHeader, MatNode head)
+    private static void LinkColumnToHead(DancingLinksNode columnHeader, DancingLinksNode head)
     {
-        columnHeader.LeftNode = head.LeftNode;
-        columnHeader.RightNode = head;
-        head.LeftNode.RightNode = columnHeader;
-        head.LeftNode = columnHeader;
+        columnHeader.Left = head.Left;
+        columnHeader.Right = head;
+        head.Left.Right = columnHeader;
+        head.Left = columnHeader;
     }
 
     /// <summary>
     /// Creates all candidate rows representing possible placements (row, column, value).
     /// </summary>
-    private static void CreateCandidateRows(MatNode[,] matrix, MatNode head, byte[,] puzzleBoard, int side, int root, int square)
+    private static void CreateCandidateRows(DancingLinksNode[,] matrix, DancingLinksNode head, byte[,] puzzleBoard, int side, int root, int square)
     {
         int row = 1;
         int column = 1;
@@ -179,7 +179,7 @@ public class DLX : ISudokuSolver
                 }
             }
 
-            MatNode rowHeader = new MatNode($"R{row}C{column}#{value}");
+            DancingLinksNode rowHeader = new DancingLinksNode($"R{row}C{column}#{value}");
             matrix[i, 0] = rowHeader;
 
             LinkRowToHead(rowHeader, head);
@@ -190,52 +190,52 @@ public class DLX : ISudokuSolver
     /// <summary>
     /// Links a row header to the head node in the vertical linked list.
     /// </summary>
-    private static void LinkRowToHead(MatNode rowHeader, MatNode head)
+    private static void LinkRowToHead(DancingLinksNode rowHeader, DancingLinksNode head)
     {
-        rowHeader.UpNode = head.UpNode;
-        rowHeader.DownNode = head;
-        head.UpNode.DownNode = rowHeader;
-        head.UpNode = rowHeader;
-        rowHeader.TopNode = head;
+        rowHeader.Up = head.Up;
+        rowHeader.Down = head;
+        head.Up.Down = rowHeader;
+        head.Up = rowHeader;
+        rowHeader.ColumnHeader = head;
     }
 
     /// <summary>
     /// Creates the four constraint nodes for a candidate (Row-Column, Row-Value, Column-Value, Box-Value).
     /// </summary>
-    private static void CreateConstraintNodesForCandidate(MatNode[,] matrix, int rowIndex, MatNode rowHeader, int row, int column, int value, int side, int root, int square)
+    private static void CreateConstraintNodesForCandidate(DancingLinksNode[,] matrix, int rowIndex, DancingLinksNode rowHeader, int row, int column, int value, int side, int root, int square)
     {
-        string tag = $"R{row}C{column}#{value}";
+        string label = $"R{row}C{column}#{value}";
 
         // Row-Column constraint
         int headerIndex = side * (row - 1) + column;
-        CreateConstraintNode(matrix, rowIndex, headerIndex, rowHeader, tag);
+        CreateConstraintNode(matrix, rowIndex, headerIndex, rowHeader, label);
 
         // Row-Value constraint
         headerIndex = square + side * (row - 1) + value;
-        CreateConstraintNode(matrix, rowIndex, headerIndex, rowHeader, tag);
+        CreateConstraintNode(matrix, rowIndex, headerIndex, rowHeader, label);
 
         // Column-Value constraint
         headerIndex = 2 * square + side * (column - 1) + value;
-        CreateConstraintNode(matrix, rowIndex, headerIndex, rowHeader, tag);
+        CreateConstraintNode(matrix, rowIndex, headerIndex, rowHeader, label);
 
         // Box-Value constraint
         int boxIndex = ((row - 1) / root * root) + (column - 1) / root;
         headerIndex = 3 * square + side * boxIndex + value;
-        CreateConstraintNode(matrix, rowIndex, headerIndex, rowHeader, tag);
+        CreateConstraintNode(matrix, rowIndex, headerIndex, rowHeader, label);
     }
 
     /// <summary>
     /// Creates a single constraint node and links it into the matrix.
     /// </summary>
-    private static void CreateConstraintNode(MatNode[,] matrix, int rowIndex, int colIndex, MatNode rowHeader, string tag)
+    private static void CreateConstraintNode(DancingLinksNode[,] matrix, int rowIndex, int colIndex, DancingLinksNode rowHeader, string label)
     {
-        MatNode columnHeader = matrix[0, colIndex];
-        matrix[rowIndex, colIndex] = new MatNode(
-            tag,
-            columnHeader.UpNode,
+        DancingLinksNode columnHeader = matrix[0, colIndex];
+        matrix[rowIndex, colIndex] = new DancingLinksNode(
+            label,
+            columnHeader.Up,
             columnHeader,
             rowHeader,
-            rowHeader.LeftNode,
+            rowHeader.Left,
             columnHeader
         );
     }
@@ -243,7 +243,7 @@ public class DLX : ISudokuSolver
     /// <summary>
     /// Removes pre-filled cells from the matrix by covering their constraints.
     /// </summary>
-    private static void RemovePreFilledCells(MatNode[,] matrix, byte[,] puzzleBoard, int side, int square)
+    private static void RemovePreFilledCells(DancingLinksNode[,] matrix, byte[,] puzzleBoard, int side, int square)
     {
         for (int row = 0; row < side; row++)
         {
@@ -253,14 +253,14 @@ public class DLX : ISudokuSolver
                 if (cellValue != 0)
                 {
                     int rowIndex = cellValue + side * column + square * row;
-                    MatNode candidateRow = matrix[rowIndex, 0];
+                    DancingLinksNode candidateRow = matrix[rowIndex, 0];
 
                     // Remove the candidate row from vertical list
-                    candidateRow.UpNode.DownNode = candidateRow.DownNode;
-                    candidateRow.DownNode.UpNode = candidateRow.UpNode;
+                    candidateRow.Up.Down = candidateRow.Down;
+                    candidateRow.Down.Up = candidateRow.Up;
 
                     // Cover all constraints satisfied by this candidate
-                    for (MatNode constraint = candidateRow.RightNode; constraint != candidateRow; constraint = constraint.RightNode)
+                    for (DancingLinksNode constraint = candidateRow.Right; constraint != candidateRow; constraint = constraint.Right)
                     {
                         Cover(constraint);
                     }
@@ -272,13 +272,13 @@ public class DLX : ISudokuSolver
     /// <summary>
     /// Finds the column with the minimum number of nodes (optimization for Algorithm X).
     /// </summary>
-    private static MatNode FindMinimumColumn(MatNode head)
+    private static DancingLinksNode FindMinimumColumn(DancingLinksNode head)
     {
-        MatNode minColumn = head.RightNode;
+        DancingLinksNode minColumn = head.Right;
 
-        for (MatNode column = minColumn.RightNode; column != head; column = column.RightNode)
+        for (DancingLinksNode column = minColumn.Right; column != head; column = column.Right)
         {
-            if (column.ColumnLength < minColumn.ColumnLength)
+            if (column.Size < minColumn.Size)
             {
                 minColumn = column;
             }
@@ -290,22 +290,22 @@ public class DLX : ISudokuSolver
     /// <summary>
     /// Covers a column and all rows that satisfy its constraint.
     /// </summary>
-    private static void Cover(MatNode node)
+    private static void Cover(DancingLinksNode node)
     {
-        MatNode columnHeader = node.TopNode;
+        DancingLinksNode columnHeader = node.ColumnHeader;
 
         // Unlink column header
-        columnHeader.RightNode.LeftNode = columnHeader.LeftNode;
-        columnHeader.LeftNode.RightNode = columnHeader.RightNode;
+        columnHeader.Right.Left = columnHeader.Left;
+        columnHeader.Left.Right = columnHeader.Right;
 
         // Remove all rows in this column
-        for (MatNode row = columnHeader.DownNode; row != columnHeader; row = row.DownNode)
+        for (DancingLinksNode row = columnHeader.Down; row != columnHeader; row = row.Down)
         {
-            for (MatNode constraint = row.RightNode; constraint != row; constraint = constraint.RightNode)
+            for (DancingLinksNode constraint = row.Right; constraint != row; constraint = constraint.Right)
             {
-                constraint.UpNode.DownNode = constraint.DownNode;
-                constraint.DownNode.UpNode = constraint.UpNode;
-                constraint.TopNode.ColumnLength--;
+                constraint.Up.Down = constraint.Down;
+                constraint.Down.Up = constraint.Up;
+                constraint.ColumnHeader.Size--;
             }
         }
     }
@@ -313,41 +313,41 @@ public class DLX : ISudokuSolver
     /// <summary>
     /// Uncovers a column and restores all rows that satisfy its constraint.
     /// </summary>
-    private static void Uncover(MatNode node)
+    private static void Uncover(DancingLinksNode node)
     {
-        MatNode columnHeader = node.TopNode;
+        DancingLinksNode columnHeader = node.ColumnHeader;
 
         // Restore all rows in this column (in reverse order)
-        for (MatNode row = columnHeader.UpNode; row != columnHeader; row = row.UpNode)
+        for (DancingLinksNode row = columnHeader.Up; row != columnHeader; row = row.Up)
         {
-            for (MatNode constraint = row.LeftNode; constraint != row; constraint = constraint.LeftNode)
+            for (DancingLinksNode constraint = row.Left; constraint != row; constraint = constraint.Left)
             {
-                constraint.UpNode.DownNode = constraint;
-                constraint.DownNode.UpNode = constraint;
-                constraint.TopNode.ColumnLength++;
+                constraint.Up.Down = constraint;
+                constraint.Down.Up = constraint;
+                constraint.ColumnHeader.Size++;
             }
         }
 
         // Relink column header
-        columnHeader.RightNode.LeftNode = columnHeader;
-        columnHeader.LeftNode.RightNode = columnHeader;
+        columnHeader.Right.Left = columnHeader;
+        columnHeader.Left.Right = columnHeader;
     }
 
     /// <summary>
     /// Recursive search for a solution using Algorithm X.
     /// </summary>
-    private static bool Search(MatNode head, Stack<string> solution)
+    private static bool Search(DancingLinksNode head, Stack<string> solution)
     {
         // Solution found: no constraints remaining
-        if (head.RightNode == head)
+        if (head.Right == head)
         {
             return true;
         }
 
-        MatNode column = FindMinimumColumn(head);
+        DancingLinksNode column = FindMinimumColumn(head);
 
         // No solution possible: column has no candidates
-        if (column.ColumnLength == 0)
+        if (column.Size == 0)
         {
             return false;
         }
@@ -355,14 +355,14 @@ public class DLX : ISudokuSolver
         Cover(column);
 
         // Try each candidate row in this column
-        for (MatNode row = column.DownNode; row != column; row = row.DownNode)
+        for (DancingLinksNode row = column.Down; row != column; row = row.Down)
         {
-            solution.Push(row.Tag);
+            solution.Push(row.Label);
 
             // Cover all constraints satisfied by this row
-            for (MatNode constraint = row.RightNode; constraint != row; constraint = constraint.RightNode)
+            for (DancingLinksNode constraint = row.Right; constraint != row; constraint = constraint.Right)
             {
-                if (constraint.TopNode != head)
+                if (constraint.ColumnHeader != head)
                 {
                     Cover(constraint);
                 }
@@ -375,9 +375,9 @@ public class DLX : ISudokuSolver
             }
 
             // Backtrack: uncover constraints
-            for (MatNode constraint = row.LeftNode; constraint != row; constraint = constraint.LeftNode)
+            for (DancingLinksNode constraint = row.Left; constraint != row; constraint = constraint.Left)
             {
-                if (constraint.TopNode != head)
+                if (constraint.ColumnHeader != head)
                 {
                     Uncover(constraint);
                 }
@@ -393,7 +393,7 @@ public class DLX : ISudokuSolver
     /// <summary>
     /// Initiates the search and returns the solution stack.
     /// </summary>
-    private static Stack<string> Search(MatNode head)
+    private static Stack<string> Search(DancingLinksNode head)
     {
         var solution = new Stack<string>();
         Search(head, solution);
@@ -430,15 +430,65 @@ public class DLX : ISudokuSolver
     /// </summary>
     public bool Solve(Sudoku sudoku)
     {
-        MatNode head = BuildMatrix(sudoku);
+        DancingLinksNode head = BuildMatrix(sudoku);
 
         // Puzzle already solved
-        if (head.RightNode == head)
+        if (head.Right == head)
         {
             return true;
         }
 
         Stack<string> solution = Search(head);
         return ApplySolution(sudoku, solution);
+    }
+}
+
+/// <summary>
+/// Represents a node in a sparse doubly-linked matrix for the DLX (Dancing Links) algorithm.
+/// </summary>
+internal class DancingLinksNode
+{
+    public string Label { get; set; }
+    public int Size { get; set; }
+    public DancingLinksNode ColumnHeader { get; set; }
+    public DancingLinksNode Up { get; set; }
+    public DancingLinksNode Down { get; set; }
+    public DancingLinksNode Right { get; set; }
+    public DancingLinksNode Left { get; set; }
+
+    /// <summary>
+    /// Creates an isolated node with all links pointing to itself.
+    /// </summary>
+    public DancingLinksNode(string label)
+    {
+        Label = label;
+        Up = this;
+        Down = this;
+        Right = this;
+        Left = this;
+        ColumnHeader = this;
+    }
+
+    /// <summary>
+    /// Creates a node and links it into the sparse matrix structure.
+    /// </summary>
+    public DancingLinksNode(string label, DancingLinksNode up, DancingLinksNode down, DancingLinksNode right, DancingLinksNode left, DancingLinksNode columnHeader)
+    {
+        Label = label;
+
+        Up = up;
+        up.Down = this;
+
+        Down = down;
+        down.Up = this;
+
+        Right = right;
+        right.Left = this;
+
+        Left = left;
+        left.Right = this;
+
+        ColumnHeader = columnHeader;
+        columnHeader.Size++;
     }
 }
