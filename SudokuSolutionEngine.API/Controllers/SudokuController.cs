@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SudokuSolutionEngine.API.Models;
+using SudokuSolutionEngine.API.Constants;
 using SudokuSolutionEngine.Core;
 using SudokuSolutionEngine.Core.Exceptions;
 
@@ -9,18 +10,9 @@ namespace SudokuSolutionEngine.API.Controllers;
 /// Controller for Sudoku solving operations.
 /// </summary>
 [ApiController]
-[Route("[controller]")]
-public class SudokuController : ControllerBase
+[Route(Routes.Sudoku)]
+public class SudokuController(ISudokuSolverFactory solverFactory, ILogger<SudokuController> logger) : ControllerBase
 {
-    private readonly ISudokuSolverFactory _solverFactory;
-    private readonly ILogger<SudokuController> _logger;
-
-    public SudokuController(ISudokuSolverFactory solverFactory, ILogger<SudokuController> logger)
-    {
-        _solverFactory = solverFactory;
-        _logger = logger;
-    }
-
     /// <summary>
     /// Solves a Sudoku puzzle.
     /// </summary>
@@ -39,7 +31,7 @@ public class SudokuController : ControllerBase
             var sudoku = new Sudoku(boardList);
 
             // Solve the puzzle
-            var solver = _solverFactory.CreateSolver();
+            var solver = solverFactory.CreateSolver();
             var solved = solver.Solve(sudoku);
 
             stopwatch.Stop();
@@ -74,7 +66,7 @@ public class SudokuController : ControllerBase
         catch (Exception ex)
         {
             stopwatch.Stop();
-            
+
             response.Solved = false;
             response.Board = null;
             response.Error = ex.Message;
@@ -82,12 +74,12 @@ public class SudokuController : ControllerBase
 
             if (ex is SudokuException)
             {
-                _logger.LogWarning(ex, "Sudoku validation error");
+                logger.LogWarning(ex, "Sudoku validation error");
                 return BadRequest(response);
             }
             else
             {
-                _logger.LogError(ex, "Unexpected error solving Sudoku puzzle");
+                logger.LogError(ex, "Unexpected error solving Sudoku puzzle");
                 return StatusCode(500, response);
             }
         }

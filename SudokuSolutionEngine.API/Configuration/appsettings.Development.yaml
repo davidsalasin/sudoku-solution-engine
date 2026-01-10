@@ -1,0 +1,6 @@
+Host: localhost
+Port: 5000
+Logging:
+  LogLevel:
+    Default: Information
+    Microsoft.AspNetCore: Warning
