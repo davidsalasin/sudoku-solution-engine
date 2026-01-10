@@ -1,13 +1,11 @@
 using SudokuSolutionEngine.Core;
 using Scalar.AspNetCore;
 using SudokuSolutionEngine.API.Extensions;
+using SudokuSolutionEngine.API.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure YAML configuration files
 builder.ConfigureYamlConfiguration(args);
-
-// Configure server URLs (host and port)
 builder.ConfigureServerUrls();
 
 // Add services to the container.
@@ -17,11 +15,13 @@ builder.Services.AddSingleton<ISudokuSolverFactory, SudokuSolverFactory>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapScalarApiReference(options =>
+    {
+        options.WithBundleUrl(SudokuSolutionEngine.API.Constants.Scalar.BundleUrl);
+    });
 }
 
 app.MapControllers();
