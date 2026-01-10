@@ -96,4 +96,56 @@ public class SudokuTests
         // Act & Assert:
         Assert.ThrowsException<SudokuBoardSizeLimitExceededException>(() => new Sudoku(boardData));
     }
+
+    [TestMethod]
+    public void Constructor_GivenValidNestedInput_InitializesCorrectly()
+    {
+        // Arrange:
+        var nestedInput = new List<IList<byte>>
+        {
+            new List<byte> { 1, 3, 2, 4 },
+            new List<byte> { 2, 4, 1, 3 },
+            new List<byte> { 3, 1, 4, 2 },
+            new List<byte> { 4, 2, 3, 1 }
+        };
+
+        // Act:
+        var sut = new Sudoku(nestedInput);
+
+        // Assert:
+        Assert.IsNotNull(sut);
+        Assert.IsNotNull(sut.Board);
+        Assert.AreEqual(4, sut.Side);
+        Assert.AreEqual(2, sut.RootSquareSide);
+    }
+
+    [TestMethod]
+    public void Constructor_GivenNestedInput_ProducesSameResultAsFlatInput()
+    {
+        // Arrange:
+        var flatInput = new List<byte> { 1, 3, 2, 4, 2, 4, 1, 3, 3, 1, 4, 2, 4, 2, 3, 1 };
+        var nestedInput = new List<IList<byte>>
+        {
+            new List<byte> { 1, 3, 2, 4 },
+            new List<byte> { 2, 4, 1, 3 },
+            new List<byte> { 3, 1, 4, 2 },
+            new List<byte> { 4, 2, 3, 1 }
+        };
+
+        // Act:
+        var sudokuFromFlat = new Sudoku(flatInput);
+        var sudokuFromNested = new Sudoku(nestedInput);
+
+        // Assert:
+        Assert.AreEqual(sudokuFromFlat.Side, sudokuFromNested.Side);
+        Assert.AreEqual(sudokuFromFlat.RootSquareSide, sudokuFromNested.RootSquareSide);
+        
+        for (int i = 0; i < sudokuFromFlat.Side; i++)
+        {
+            for (int j = 0; j < sudokuFromFlat.Side; j++)
+            {
+                Assert.AreEqual(sudokuFromFlat.Board[i, j], sudokuFromNested.Board[i, j]);
+            }
+        }
+    }
 }
