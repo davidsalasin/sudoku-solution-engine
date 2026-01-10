@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Documentation
+    url: https://github.com/davidsalasin/sudoku-search-engine/blob/main/README.md
+    about: Please check the README.md for setup, compilation, and gameplay instructions
+  - name: 💬 Discussions
+    url: https://github.com/davidsalasin/sudoku-search-engine/discussions
+    about: Ask questions and discuss ideas with the community
+
