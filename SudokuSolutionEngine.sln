@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SudokuSolutionEngine.Core",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SudokuSolutionEngine.Core.Tests", "SudokuSolutionEngine.Core.Tests\SudokuSolutionEngine.Core.Tests.csproj", "{FA9CDD48-7A0D-42B0-ACAA-99CFEB0EB90A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SudokuSolutionEngine.API", "SudokuSolutionEngine.API\SudokuSolutionEngine.API.csproj", "{1F612435-7FDF-42E9-BFBA-5DD08933BA63}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,18 @@ Global
 		{FA9CDD48-7A0D-42B0-ACAA-99CFEB0EB90A}.Release|x64.Build.0 = Release|Any CPU
 		{FA9CDD48-7A0D-42B0-ACAA-99CFEB0EB90A}.Release|x86.ActiveCfg = Release|Any CPU
 		{FA9CDD48-7A0D-42B0-ACAA-99CFEB0EB90A}.Release|x86.Build.0 = Release|Any CPU
+		{1F612435-7FDF-42E9-BFBA-5DD08933BA63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F612435-7FDF-42E9-BFBA-5DD08933BA63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F612435-7FDF-42E9-BFBA-5DD08933BA63}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1F612435-7FDF-42E9-BFBA-5DD08933BA63}.Debug|x64.Build.0 = Debug|Any CPU
+		{1F612435-7FDF-42E9-BFBA-5DD08933BA63}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1F612435-7FDF-42E9-BFBA-5DD08933BA63}.Debug|x86.Build.0 = Debug|Any CPU
+		{1F612435-7FDF-42E9-BFBA-5DD08933BA63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F612435-7FDF-42E9-BFBA-5DD08933BA63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F612435-7FDF-42E9-BFBA-5DD08933BA63}.Release|x64.ActiveCfg = Release|Any CPU
+		{1F612435-7FDF-42E9-BFBA-5DD08933BA63}.Release|x64.Build.0 = Release|Any CPU
+		{1F612435-7FDF-42E9-BFBA-5DD08933BA63}.Release|x86.ActiveCfg = Release|Any CPU
+		{1F612435-7FDF-42E9-BFBA-5DD08933BA63}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

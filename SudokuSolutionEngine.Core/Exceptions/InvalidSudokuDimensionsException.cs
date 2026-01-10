@@ -9,7 +9,7 @@ namespace SudokuSolutionEngine.Core.Exceptions;
 /// </remarks>
 /// <param name="puzzleLength">The length of the puzzle input.</param>
 /// <param name="powDot25">The result of (puzzle length)^0.25.</param>
-public class InvalidSudokuDimensionsException(int puzzleLength, double powDot25) : Exception($"Couldn't create Sudoku: (Puzzle length)^0.25 isn't a natural number: {powDot25:F3}...")
+public class InvalidSudokuDimensionsException(int puzzleLength, double powDot25) : SudokuException($"Couldn't create Sudoku: (Puzzle length)^0.25 isn't a natural number: {powDot25:F3}...")
 {
 
     /// <summary>

@@ -9,7 +9,7 @@ namespace SudokuSolutionEngine.Core.Exceptions;
 /// </remarks>
 /// <param name="invalidValue">The invalid value that was found in the puzzle input.</param>
 /// <param name="side">The side length of the Sudoku puzzle.</param>
-public class InvalidSudokuValueException(int invalidValue, int side) : Exception($"Couldn't create Sudoku: Invalid value '{invalidValue}' found in puzzle input for side length '{side}'")
+public class InvalidSudokuValueException(int invalidValue, int side) : SudokuException($"Couldn't create Sudoku: Invalid value '{invalidValue}' found in puzzle input for side length '{side}'")
 {
 
     /// <summary>

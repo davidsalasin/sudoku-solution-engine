@@ -10,7 +10,7 @@ namespace SudokuSolutionEngine.Core.Exceptions;
 /// </remarks>
 /// <param name="boardSize">The board size that exceeded the limit (e.g., 49 for 49x49).</param>
 /// <param name="maxSize">The maximum supported board size for solving (36).</param>
-public class SudokuSolverLimitExceededException(int boardSize, int maxSize) : Exception($"Board size {boardSize}x{boardSize} exceeds the practical solver limit of {maxSize}x{maxSize}. The DLX algorithm currently runs out of memory for boards larger than this size. This is a temporary limitation.")
+public class SudokuSolverLimitExceededException(int boardSize, int maxSize) : SudokuException($"Board size {boardSize}x{boardSize} exceeds the practical solver limit of {maxSize}x{maxSize}. The DLX algorithm currently runs out of memory for boards larger than this size. This is a temporary limitation.")
 {
 
     /// <summary>

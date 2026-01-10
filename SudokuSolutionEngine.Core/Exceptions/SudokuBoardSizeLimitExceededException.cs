@@ -9,7 +9,7 @@ namespace SudokuSolutionEngine.Core.Exceptions;
 /// </remarks>
 /// <param name="boardSize">The board size that exceeded the limit (e.g., 16 for 16x16).</param>
 /// <param name="maxSize">The maximum supported board size (15).</param>
-public class SudokuBoardSizeLimitExceededException(int boardSize, int maxSize) : Exception($"Board size {boardSize}x{boardSize} exceeds maximum supported size of {maxSize}x{maxSize}. This limitation exists because the implementation uses byte arrays for memory efficiency, requiring values 0-{maxSize} (where 0 represents empty cells).")
+public class SudokuBoardSizeLimitExceededException(int boardSize, int maxSize) : SudokuException($"Board size {boardSize}x{boardSize} exceeds maximum supported size of {maxSize}x{maxSize}. This limitation exists because the implementation uses byte arrays for memory efficiency, requiring values 0-{maxSize} (where 0 represents empty cells).")
 {
 
     /// <summary>
