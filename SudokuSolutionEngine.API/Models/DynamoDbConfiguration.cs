@@ -40,6 +40,11 @@ public class DynamoDbConfiguration
     public string? Region { get; set; }
 
     /// <summary>
+    /// Timeout in milliseconds for DynamoDB client operations.
+    /// </summary>
+    public int TimeoutMs { get; set; } = DynamoDb.DefaultTimeoutMs;
+
+    /// <summary>
     /// TTL (Time To Live) configuration.
     /// </summary>
     public TTLConfiguration TTL { get; set; } = new();

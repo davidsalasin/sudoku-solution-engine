@@ -54,4 +54,9 @@ public static class DynamoDb
     /// Default duration for TTL (Time To Live) expiration.
     /// </summary>
     public static readonly TimeSpan DefaultTTLDuration = TimeSpan.FromDays(30);
+
+    /// <summary>
+    /// Default timeout in milliseconds for DynamoDB client operations.
+    /// </summary>
+    public const int DefaultTimeoutMs = 5000;
 }

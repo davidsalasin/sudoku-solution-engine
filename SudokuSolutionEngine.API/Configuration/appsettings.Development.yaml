@@ -1,9 +1,5 @@
 Host: localhost
 Port: 5000
-Logging:
-  LogLevel:
-    Default: Information
-    Microsoft.AspNetCore: Warning
 
 DynamoDB:
   Enabled: true
@@ -12,3 +8,17 @@ DynamoDB:
   TTL:
     Enabled: true
     Duration: 00:00:30
+
+Serilog:
+  MinimumLevel:
+    Default: Debug
+    Override:
+      Microsoft: Information
+      Microsoft.AspNetCore: Information
+      Microsoft.Extensions.Hosting: Warning 
+      System: Warning
+      SudokuSolutionEngine.API: Debug
+  WriteTo:
+    - Name: Console
+      # Args:
+      #   outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext} {Message:lj}{NewLine}{Exception}"

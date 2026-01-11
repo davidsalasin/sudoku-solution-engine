@@ -5,6 +5,7 @@ using Amazon.DynamoDBv2;
 using SudokuSolutionEngine.API.Models;
 using SudokuSolutionEngine.API.Services;
 using SudokuSolutionEngine.API.Exceptions;
+using Serilog;
 
 namespace SudokuSolutionEngine.API.Extensions;
 
@@ -70,9 +71,16 @@ public static class WebApplicationBuilderExtensions
                 var config = new AmazonDynamoDBConfig();
 
                 if (!string.IsNullOrWhiteSpace(dynamoDbConfig.ServiceURL))
+                {
                     config.ServiceURL = dynamoDbConfig.ServiceURL;
+                }
                 else if (!string.IsNullOrWhiteSpace(dynamoDbConfig.Region))
+                {
                     config.RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(dynamoDbConfig.Region);
+                }
+
+                // Note: config.Timeout doesn't work for async operations.
+                // Timeout is handled via CancellationToken.
 
                 return new AmazonDynamoDBClient(config);
             });
@@ -86,6 +94,17 @@ public static class WebApplicationBuilderExtensions
             // Register a no-op implementation when DynamoDB is disabled
             builder.Services.AddScoped<ISudokuSolutionStorageService, NullSudokuSolutionStorageService>();
         }
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Configures Serilog logging from configuration.
+    /// </summary>
+    public static WebApplicationBuilder ConfigureSerilog(this WebApplicationBuilder builder)
+    {
+        builder.Host.UseSerilog((context, services, configuration) => configuration
+            .ReadFrom.Configuration(context.Configuration));
 
         return builder;
     }

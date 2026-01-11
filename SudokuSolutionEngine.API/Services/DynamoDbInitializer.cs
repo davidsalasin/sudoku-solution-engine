@@ -1,6 +1,9 @@
 using System.Linq;
+using System.Net.Http;
+using System.Net.Sockets;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
+using Amazon.Runtime;
 using SudokuSolutionEngine.API.Constants;
 using SudokuSolutionEngine.API.Exceptions;
 using SudokuSolutionEngine.API.Models;
@@ -20,32 +23,105 @@ public class DynamoDbInitializer(IAmazonDynamoDB dynamoDb, ILogger<DynamoDbIniti
             return;
         }
 
-        var tableDescription = await GetTableDescriptionAsync(cancellationToken);
+        logger.LogInformation("Starting DynamoDB initialization for table {TableName} at {ServiceURL}",
+            config.TableName, config.ServiceURL ?? "AWS (default region)");
 
-        if (tableDescription == null)
+        try
         {
-            logger.LogInformation("DynamoDB table {TableName} does not exist, creating it", config.TableName);
-            await CreateTableAsync(cancellationToken);
-            logger.LogInformation("DynamoDB table {TableName} created and is now active", config.TableName);
+            var tableDescription = await GetTableDescriptionAsync(cancellationToken);
+
+            if (tableDescription == null)
+            {
+                logger.LogInformation("DynamoDB table {TableName} does not exist, creating it", config.TableName);
+                await CreateTableAsync(cancellationToken);
+                logger.LogInformation("DynamoDB table {TableName} created and is now active", config.TableName);
+            }
+            else
+            {
+                logger.LogInformation("DynamoDB table {TableName} already exists, validating schema", config.TableName);
+                await ValidateTableSchemaAsync(tableDescription, cancellationToken);
+                logger.LogInformation("DynamoDB table {TableName} exists and schema is valid", config.TableName);
+            }
         }
-        else
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            logger.LogInformation("DynamoDB table {TableName} already exists, validating schema", config.TableName);
-            await ValidateTableSchemaAsync(tableDescription, cancellationToken);
-            logger.LogInformation("DynamoDB table {TableName} exists and schema is valid", config.TableName);
+            // Application is shutting down - this is normal
+            logger.LogInformation("DynamoDB initialization canceled during application shutdown");
+        }
+        catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // Application is shutting down - this is normal
+            logger.LogInformation("DynamoDB initialization canceled during application shutdown");
         }
     }
 
     private async Task<TableDescription?> GetTableDescriptionAsync(CancellationToken cancellationToken)
     {
+        // Create a timeout cancellation token source for async operations
+        using var timeoutCts = new CancellationTokenSource(TimeSpan.FromMilliseconds(config.TimeoutMs));
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+
         try
         {
-            var response = await dynamoDb.DescribeTableAsync(config.TableName, cancellationToken);
+            logger.LogInformation("Attempting to connect to DynamoDB at {ServiceURL} (timeout: {TimeoutMs}ms)...",
+                config.ServiceURL, config.TimeoutMs);
+            var response = await dynamoDb.DescribeTableAsync(config.TableName, linkedCts.Token);
+            logger.LogInformation("Successfully connected to DynamoDB");
             return response.Table;
         }
         catch (ResourceNotFoundException)
         {
             return null;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // Shutdown was requested - this is expected, don't log as error
+            logger.LogDebug("DynamoDB operation canceled during application shutdown");
+            throw;
+        }
+        catch (TaskCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // Shutdown was requested - this is expected, don't log as error
+            logger.LogDebug("DynamoDB operation canceled during application shutdown");
+            throw;
+        }
+        catch (OperationCanceledException) when (timeoutCts.Token.IsCancellationRequested)
+        {
+            // Timeout occurred
+            logger.LogError("Timeout connecting to DynamoDB at {ServiceURL} after {TimeoutMs}ms",
+                config.ServiceURL, config.TimeoutMs);
+            throw new TimeoutException($"DynamoDB connection timeout after {config.TimeoutMs}ms");
+        }
+        catch (TaskCanceledException) when (timeoutCts.Token.IsCancellationRequested)
+        {
+            // Timeout occurred
+            logger.LogError("Timeout connecting to DynamoDB at {ServiceURL} after {TimeoutMs}ms",
+                config.ServiceURL, config.TimeoutMs);
+            throw new TimeoutException($"DynamoDB connection timeout after {config.TimeoutMs}ms");
+        }
+        catch (HttpRequestException ex)
+        {
+            logger.LogError(ex, "HTTP request failed when connecting to DynamoDB at {ServiceURL}. Error: {Message}",
+                config.ServiceURL, ex.Message);
+            throw;
+        }
+        catch (SocketException ex)
+        {
+            logger.LogError(ex, "Network connection failed when connecting to DynamoDB at {ServiceURL}. Error: {Message}",
+                config.ServiceURL, ex.Message);
+            throw;
+        }
+        catch (AmazonClientException ex)
+        {
+            logger.LogError(ex, "AWS client error when connecting to DynamoDB at {ServiceURL}. Error: {Message}",
+                config.ServiceURL, ex.Message);
+            throw;
+        }
+        catch (AmazonServiceException ex)
+        {
+            logger.LogError(ex, "AWS service error when connecting to DynamoDB at {ServiceURL}. Error: {Message}",
+                config.ServiceURL, ex.Message);
+            throw;
         }
     }
 
