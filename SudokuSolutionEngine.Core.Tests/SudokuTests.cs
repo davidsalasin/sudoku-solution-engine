@@ -121,7 +121,7 @@ public class SudokuTests
     public void Constructor_GivenValidNestedInput_InitializesCorrectly()
     {
         // Arrange:
-        var nestedInput = new List<IList<byte>>
+        var nestedInput = new List<List<byte>>
         {
             new List<byte> { 1, 3, 2, 4 },
             new List<byte> { 2, 4, 1, 3 },
@@ -144,7 +144,7 @@ public class SudokuTests
     {
         // Arrange:
         var flatInput = new List<byte> { 1, 3, 2, 4, 2, 4, 1, 3, 3, 1, 4, 2, 4, 2, 3, 1 };
-        var nestedInput = new List<IList<byte>>
+        var nestedInput = new List<List<byte>>
         {
             new List<byte> { 1, 3, 2, 4 },
             new List<byte> { 2, 4, 1, 3 },

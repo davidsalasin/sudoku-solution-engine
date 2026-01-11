@@ -1,6 +1,6 @@
 # Sudoku Solution Engine
 
-A high-performance Sudoku solver implementation using the DLX (Dancing Links) algorithm, written in C#. Currently provides a command-line interface (CLI) for solving Sudoku puzzles.
+A high-performance Sudoku solver implementation using the DLX (Dancing Links) algorithm, written in C#. Provides both a command-line interface (CLI) and a REST API for solving Sudoku puzzles, with optional DynamoDB storage for caching solutions.
 
 ## Overview
 
@@ -9,11 +9,15 @@ This project implements an efficient Sudoku solver using Donald Knuth's Algorith
 ## Features
 
 - Command Line Interface (CLI) executable
+- REST API for solving Sudoku puzzles via HTTP
 - Efficient DLX algorithm implementation for solving Sudoku puzzles
+- Optional DynamoDB storage for caching solutions
 
 ## Quick Start
 
-**For users**: See the [CLI Usage Guide](docs/CLI_USAGE.md) for complete usage instructions and examples.
+**For users**: 
+- See the [CLI Usage Guide](docs/CLI_USAGE.md) for command-line usage
+- See the [API Usage Guide](docs/API_USAGE.md) for REST API usage
 
 **For developers**: See the [Development Guide](docs/DEVELOPMENT.md) for building, testing, and contributing.
 

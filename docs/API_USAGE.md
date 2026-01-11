@@ -49,6 +49,111 @@ You can configure the host and port via:
 
 3. **Command-line arguments** (passed to the application)
 
+## DynamoDB Storage Configuration
+
+The API supports optional DynamoDB storage for caching Sudoku solutions. This feature can significantly improve performance by avoiding re-solving previously solved puzzles.
+
+### Configuration
+
+DynamoDB storage is configured in the YAML configuration files:
+
+```yaml
+DynamoDB:
+  Enabled: true                    # Enable/disable DynamoDB storage
+  ServiceURL: http://localhost:4566 # Optional: For LocalStack or DynamoDB Local
+  TableName: SudokuSolutions       # Table name (default: "SudokuSolutions")
+  Region: us-east-1                # Optional: AWS region (auto-detected if not specified)
+  TTL:
+    Enabled: true                  # Whether to set TTL values on stored items
+    Duration: "30.00:00:00"        # TimeSpan format: days.hours:minutes:seconds
+```
+
+### Local Development with LocalStack
+
+For local development, you can use LocalStack to emulate DynamoDB:
+
+1. **Start LocalStack** (using docker-compose):
+
+   ```bash
+   docker-compose -f docker-compose.dev.yml up -d
+   ```
+
+2. **Configure the API** (`appsettings.Development.yaml`):
+
+   ```yaml
+   DynamoDB:
+     Enabled: true
+     ServiceURL: http://localhost:4566
+     TableName: SudokuSolutions
+     TTL:
+       Enabled: true
+       Duration: "30.00:00:00"  # 30 days
+   ```
+
+3. **Set AWS credentials** (required even for LocalStack):
+
+   The API will automatically use environment variables from `launchSettings.json` in development mode, or you can set them manually:
+
+   ```bash
+   export AWS_ACCESS_KEY_ID=test
+   export AWS_SECRET_ACCESS_KEY=test
+   export AWS_REGION=us-east-1
+   ```
+
+### Production (AWS DynamoDB)
+
+For production deployments on AWS:
+
+1. **Configure IAM permissions**: Your application needs permissions to:
+   - Create/describe/update DynamoDB tables
+   - Read/write items to the table
+   - Configure Time To Live (TTL)
+
+2. **Configuration** (`appsettings.yaml` or environment variables):
+
+   ```yaml
+   DynamoDB:
+     Enabled: true
+     # ServiceURL: not set (uses AWS DynamoDB)
+     TableName: SudokuSolutions
+     Region: us-east-1  # Optional: auto-detected if not specified
+     TTL:
+       Enabled: true
+       Duration: "30.00:00:00"
+   ```
+
+3. **AWS credentials**: Configure using one of:
+   - IAM roles (recommended for ECS/EC2)
+   - Environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`)
+   - AWS credentials file (`~/.aws/credentials`)
+
+### How It Works
+
+- **Table Creation**: On startup, the API automatically creates the DynamoDB table if it doesn't exist
+- **Schema Validation**: For existing tables, the API validates the schema matches expectations
+- **TTL Configuration**: TTL is always enabled on the table. Items only get TTL values when `TTL.Enabled` is `true`
+- **Caching**: When a puzzle is solved, the solution is stored with the board hash as the key
+- **Retrieval**: Before solving, the API checks if a solution already exists for the given board hash
+- **Expiration**: Items with TTL values expire automatically (handled by DynamoDB)
+
+### TTL Behavior
+
+- **Table Level**: TTL is always enabled on the table (configured automatically)
+- **Item Level**: TTL values are only set on items when `TTL.Enabled` is `true`
+- **Expiration**: Items without TTL values stay indefinitely; items with TTL values expire after the specified duration
+- **Format**: TTL values are Unix timestamps (seconds since epoch)
+
+### Disabling Storage
+
+To disable DynamoDB storage entirely:
+
+```yaml
+DynamoDB:
+  Enabled: false
+```
+
+When disabled, the API will use a no-op storage service and won't cache solutions.
+
 ## TLS/HTTPS Configuration
 
 ### Local Development
@@ -197,6 +302,7 @@ All error responses include an `error` field with a descriptive message.
 
 - Response includes `timeMs` field showing solve time in milliseconds
 - Performance depends on puzzle difficulty and size
+- When DynamoDB storage is enabled, previously solved puzzles are retrieved from cache, resulting in near-instant responses
 
 ## Security Considerations
 
