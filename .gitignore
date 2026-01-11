@@ -258,3 +258,5 @@ project.fragment.lock.json
 .idea/
 *.sln.iml
 
+## LocalStack data (development only)
+localstack-data/

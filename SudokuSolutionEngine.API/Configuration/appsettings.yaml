@@ -4,3 +4,6 @@ Logging:
     Microsoft.AspNetCore: Warning
 
 AllowedHosts: "*"
+
+DynamoDB:
+  Enabled: false

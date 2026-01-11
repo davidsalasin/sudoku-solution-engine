@@ -97,5 +97,5 @@ public class Sudoku
     /// Constructs a Sudoku puzzle from a nested list of bytes.
     /// </summary>
     /// <param name="puzzleInput">The nested puzzle representation (rows of bytes).</param>
-    public Sudoku(IList<IList<byte>> puzzleInput) : this(puzzleInput.SelectMany(row => row).ToList()) { }
+    public Sudoku(List<List<byte>> puzzleInput) : this(puzzleInput.SelectMany(row => row).ToList()) { }
 }

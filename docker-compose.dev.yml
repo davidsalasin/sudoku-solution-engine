@@ -1,0 +1,31 @@
+services:
+  localstack:
+    container_name: localstack-sse
+    image: localstack/localstack:latest
+    ports:
+      - 4566:4566 # LocalStack edge port
+    environment:
+      - SERVICES=dynamodb
+      - DEBUG=1  # 1 Enables verbose logging. 0 disables it - for production-like runs.
+    volumes:
+      - ./localstack-data:/var/lib/localstack # Persists LocalStack data (tables, data) on your host. Without this, data is lost when the container stops.
+    networks:
+      - localstack-network
+
+  dynamodb-admin:
+    container_name: dynamodb-admin-sse
+    image: aaronshaf/dynamodb-admin:latest
+    ports:
+      - 8001:8001 # DynamoDB Admin Web UI
+    environment:
+      - DYNAMO_ENDPOINT=http://localstack:4566 # Use service name for internal communication
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+    depends_on:
+      - localstack
+    networks:
+      - localstack-network
+
+networks:
+  localstack-network:
+    driver: bridge

@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.ConfigureYamlConfiguration(args);
 builder.ConfigureServerUrls();
+builder.ConfigureDynamoDb();
 
 // Add services to the container.
 builder.Services.AddControllers();

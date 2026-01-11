@@ -1,9 +1,9 @@
 namespace SudokuSolutionEngine.API.Models;
 
 /// <summary>
-/// Response model for Sudoku solving operation.
+/// Response model for Sudoku solution operation.
 /// </summary>
-public class SudokuResponse
+public class SudokuSolutionResponse
 {
     /// <summary>
     /// Indicates whether the Sudoku puzzle was successfully solved.
@@ -18,10 +18,15 @@ public class SudokuResponse
     /// <summary>
     /// Time taken to solve the puzzle in milliseconds.
     /// </summary>
-    public int TimeMs { get; set; }
+    public long TimeMs { get; set; }
 
     /// <summary>
     /// Error message if an error occurred, or null if successful.
     /// </summary>
     public string? Error { get; set; }
+
+    /// <summary>
+    /// Indicates whether this response was retrieved from storage.
+    /// </summary>
+    public bool RetrievedFromStorage { get; set; }
 }

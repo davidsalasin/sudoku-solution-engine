@@ -4,3 +4,11 @@ Logging:
   LogLevel:
     Default: Information
     Microsoft.AspNetCore: Warning
+
+DynamoDB:
+  Enabled: true
+  ServiceURL: http://localhost:4566
+  TableName: SudokuSolutions
+  TTL:
+    Enabled: true
+    Duration: 00:00:30

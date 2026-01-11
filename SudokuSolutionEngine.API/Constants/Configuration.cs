@@ -14,4 +14,7 @@ public static class Configuration
     // File paths (OS-safe using Path.Join)
     public static readonly string AppSettingsPath = Path.Join(ConfigurationFolder, AppSettingsFileName);
     public static readonly string AppSettingsEnvironmentPathTemplate = Path.Join(ConfigurationFolder, AppSettingsEnvironmentFileNameTemplate);
+
+    // Configuration section names
+    public const string DynamoDbSectionName = "DynamoDB";
 }
