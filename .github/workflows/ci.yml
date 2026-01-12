@@ -179,6 +179,8 @@ jobs:
             -r win-x64 \
             -p:PublishSingleFile=true \
             -p:DebugType=None \
+            -p:Version=${{ steps.get-version.outputs.version }} \
+            -p:InformationalVersion=${{ steps.get-version.outputs.version }} \
             -o ./artifacts/win-x64
       
       - name: Build CLI executable (Linux x64)
@@ -189,6 +191,8 @@ jobs:
             -r linux-x64 \
             -p:PublishSingleFile=true \
             -p:DebugType=None \
+            -p:Version=${{ steps.get-version.outputs.version }} \
+            -p:InformationalVersion=${{ steps.get-version.outputs.version }} \
             -o ./artifacts/linux-x64
       
       - name: Build CLI executable (macOS x64)
@@ -199,6 +203,8 @@ jobs:
             -r osx-x64 \
             -p:PublishSingleFile=true \
             -p:DebugType=None \
+            -p:Version=${{ steps.get-version.outputs.version }} \
+            -p:InformationalVersion=${{ steps.get-version.outputs.version }} \
             -o ./artifacts/osx-x64
       
       - name: Build CLI executable (macOS ARM64)
@@ -209,6 +215,8 @@ jobs:
             -r osx-arm64 \
             -p:PublishSingleFile=true \
             -p:DebugType=None \
+            -p:Version=${{ steps.get-version.outputs.version }} \
+            -p:InformationalVersion=${{ steps.get-version.outputs.version }} \
             -o ./artifacts/osx-arm64
       
       - name: Create release archive (Windows)
