@@ -1,0 +1,78 @@
+# Build outputs
+**/bin/
+**/obj/
+**/Debug/
+**/Release/
+*.exe
+*.dll
+*.pdb
+
+# Visual Studio / IDE files
+.vs/
+.vscode/
+*.sln.DotSettings.user
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Test results
+**/TestResults/
+**/test-results/
+*.trx
+*.coverage
+*.coveragexml
+
+# Logs
+**/logs/
+**/log/
+*.log
+
+# LocalStack data
+localstack-data/
+
+# Docker files (don't copy into image)
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation (not needed in image)
+docs/
+README.md
+LICENSE
+
+# Scripts (not needed in image)
+scripts/
+
+# CI/CD (not needed in image)
+.github/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Artifacts from builds
+artifacts/
+*.zip
+*.tar.gz
+
+# launchSettings.json
+**/Properties/launchSettings.json

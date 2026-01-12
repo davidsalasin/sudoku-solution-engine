@@ -26,6 +26,22 @@ services:
     networks:
       - localstack-network
 
+  # sse-service:
+  #   container_name: sse-service
+  #   image: ghcr.io/davidsalasin/sse-service:latest
+  #   ports:
+  #     - 5000:5000
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #     - Host=*
+  #     - DynamoDB__ServiceURL=http://localstack:4566
+  #     - AWS_ACCESS_KEY_ID=test
+  #     - AWS_SECRET_ACCESS_KEY=test
+  #   depends_on:
+  #     - localstack
+  #   networks:
+  #     - localstack-network
+
 networks:
   localstack-network:
     driver: bridge
